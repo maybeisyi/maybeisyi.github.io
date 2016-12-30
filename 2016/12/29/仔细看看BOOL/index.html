@@ -68,7 +68,7 @@
 <link href="/css/main.css?v=5.0.2" rel="stylesheet" type="text/css" />
 
 
-  <meta name="keywords" content="daiyi,blog" />
+  <meta name="keywords" content="iOS," />
 
 
 
@@ -84,15 +84,25 @@
 
 
 
-<meta name="description" content="你到底在说什么">
-<meta property="og:type" content="website">
-<meta property="og:title" content="戴奕的个人博客">
-<meta property="og:url" content="http://yoursite.com/archives/2016/index.html">
+<meta name="description" content="为啥要看这玩意越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~
+BOOL的定义/// Type to represent a boolean value.
+#if (TARGET_OS_IPHONE &amp;amp;&amp;amp; __LP64__)  ||  TARGET_OS_WATCH
+#define OBJC_BOOL">
+<meta property="og:type" content="article">
+<meta property="og:title" content="仔细看看你的BOOL">
+<meta property="og:url" content="http://yoursite.com/2016/12/29/仔细看看BOOL/index.html">
 <meta property="og:site_name" content="戴奕的个人博客">
-<meta property="og:description" content="你到底在说什么">
+<meta property="og:description" content="为啥要看这玩意越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~
+BOOL的定义/// Type to represent a boolean value.
+#if (TARGET_OS_IPHONE &amp;amp;&amp;amp; __LP64__)  ||  TARGET_OS_WATCH
+#define OBJC_BOOL">
+<meta property="og:updated_time" content="2016-12-30T09:27:40.000Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="戴奕的个人博客">
-<meta name="twitter:description" content="你到底在说什么">
+<meta name="twitter:title" content="仔细看看你的BOOL">
+<meta name="twitter:description" content="为啥要看这玩意越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~
+BOOL的定义/// Type to represent a boolean value.
+#if (TARGET_OS_IPHONE &amp;amp;&amp;amp; __LP64__)  ||  TARGET_OS_WATCH
+#define OBJC_BOOL">
 
 
 
@@ -113,10 +123,10 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/archives/2016/"/>
+  <link rel="canonical" href="http://yoursite.com/2016/12/29/仔细看看BOOL/"/>
 
 
-  <title> 归档 | 戴奕的个人博客 </title>
+  <title> 仔细看看你的BOOL | 戴奕的个人博客 </title>
 </head>
 
 <body itemscope itemtype="//schema.org/WebPage" lang="zh-Hans">
@@ -137,7 +147,7 @@
     
   
 
-  <div class="container one-collumn sidebar-position-left  page-archive  ">
+  <div class="container one-collumn sidebar-position-left page-post-detail ">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="//schema.org/WPHeader">
@@ -215,177 +225,146 @@
           <div id="content" class="content">
             
 
-  <section id="posts" class="posts-collapse">
-    <span class="archive-move-on"></span>
-
-    <span class="archive-page-counter">
-      
-      
-      
-        
-      
-      嗯..! 目前共计 4 篇日志。 继续努力。
-    </span>
-
+  <div id="posts" class="posts-expand">
     
-
-      
-      
-      
-
-      
-        
-        <div class="collection-title">
-          <h2 class="archive-year motion-element" id="archive-year-2016">2016</h2>
-        </div>
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/29/仔细看看BOOL/" itemprop="url">
-              
-                <span itemprop="name">仔细看看你的BOOL</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-29T17:34:11+08:00"
-              content="2016-12-29" >
-          12-29
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/12/29/第一份工作总结/" itemprop="url">
-              
-                <span itemprop="name">第一份工作总结</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-12-29T17:02:06+08:00"
-              content="2016-12-29" >
-          12-29
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/10/14/最简单的2个imageView无限轮播器/" itemprop="url">
-              
-                <span itemprop="name">最简单的2个imageView无限轮播器</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-10-14T00:15:22+08:00"
-              content="2016-10-14" >
-          10-14
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-      
-      
-      
-
-      
-      
-
-      
-
-  <article class="post post-type-normal" itemscope itemtype="//schema.org/Article">
-    <header class="post-header">
-
-      <h1 class="post-title">
-        
-            <a class="post-title-link" href="/2016/10/14/你对@synthesize混淆了吗？/" itemprop="url">
-              
-                <span itemprop="name">你对@synthesize混淆了吗？</span>
-              
-            </a>
-        
-      </h1>
-
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2016-10-14T00:15:22+08:00"
-              content="2016-10-14" >
-          10-14
-        </time>
-      </div>
-
-    </header>
-  </article>
-
-
-
-    
-
-  </section>
 
   
+  
 
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                仔细看看你的BOOL
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-12-29T17:34:11+08:00" content="2016-12-29">
+              2016-12-29
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="为啥要看这玩意"><a href="#为啥要看这玩意" class="headerlink" title="为啥要看这玩意"></a>为啥要看这玩意</h3><p>越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~</p>
+<h3 id="BOOL的定义"><a href="#BOOL的定义" class="headerlink" title="BOOL的定义"></a>BOOL的定义</h3><pre><code class="iOS">/// Type to represent a boolean value.
+#if (TARGET_OS_IPHONE &amp;&amp; __LP64__)  ||  TARGET_OS_WATCH
+#define OBJC_BOOL_IS_BOOL 1
+typedef bool BOOL;
+#else
+#define OBJC_BOOL_IS_CHAR 1
+typedef signed char BOOL; 
+// BOOL is explicitly signed so @encode(BOOL) == &quot;c&quot; rather than &quot;C&quot; 
+// even if -funsigned-char is used.
+#endif
+</code></pre>
+<p>伪代码解释下：  </p>
+<p>if (处于64位iPhone 或者 iWatch) {<br>　　BOOL就是bool  （非0即真）<br>} else {<br>　　BOOL就是signed char  （1个字节，取低8位。-128 ~ 127）<br>}  </p>
+<p>这里的else，最常见的就是32位架构的iPhone，比如iPhone5c/5/4s/4等。  </p>
+<hr>
+<p>这里就引申出一个可能存在的问题：</p>
+<pre><code class="iOS">- (void)doSomeThingWithA:(NSInteger)a {
+    NSInteger b = 28;
+    if (a + b) {
+        // 业务代码
+    }
+}
+</code></pre>
+<p>乍看之下，这段代码只要 <code>a != -28</code>，都是能够执行业务代码部分。在64位iPhone和iWatch机器里确实是如此，因为定义的BOOL就是bool，就是非0即真，你用负数也是真。<br>但是在32位机器里呢？如果a传入100，<code>a + b == 128</code>，二进制是  1000 0001 0000 0000 0000 0000 0000 0000（因为32位里NSInteger是int【话说最新的头文件定义里多了个<code>NS_BUILD_32_LIKE_64</code>，估计编译器可以设置32位的机器以64位来进行编译，这个这里暂时不展开讨论】，占用4个字节，每个字节8位嘛）。该数会强转为sign char，：取低8位 0000 0000 来判断。if中判定为0，则为假，不再执行业务代码。</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/iOS/" rel="tag">#iOS</a>
+          
+        </div>
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2016/12/29/第一份工作总结/" rel="next" title="第一份工作总结">
+                <i class="fa fa-chevron-left"></i> 第一份工作总结
+              </a>
+            
+          </div>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
 
 
           </div>
@@ -393,6 +372,10 @@
 
 
           
+  <div class="comments" id="comments">
+    
+  </div>
+
 
         </div>
         
@@ -412,8 +395,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap" >
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview sidebar-panel  sidebar-panel-active ">
+      <section class="site-overview sidebar-panel ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="//schema.org/Person">
           <img class="site-author-image" itemprop="image"
                src="http://ww4.sinaimg.cn/mw1024/006fcg2Wgw1f8t128jil3j305f05fweg.jpg"
@@ -456,6 +448,17 @@
 
       </section>
 
+      
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+            
+              
+            
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥要看这玩意"><span class="nav-number">1.</span> <span class="nav-text">为啥要看这玩意</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BOOL的定义"><span class="nav-number">2.</span> <span class="nav-text">BOOL的定义</span></a></li></ol></div>
+            
+          </div>
+        </section>
       
 
     </div>
@@ -552,11 +555,9 @@
   
 
   
-  
-    <script type="text/javascript" id="motion.page.archive">
-      $('.archive-year').velocity('transition.slideLeftIn');
-    </script>
-  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.0.2"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.0.2"></script>
+
 
 
   

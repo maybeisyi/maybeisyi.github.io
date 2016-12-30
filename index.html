@@ -239,8 +239,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/12/29/第一份工作总结/" itemprop="url">
-                  第一份工作总结
+                <a class="post-title-link" href="/2016/12/29/仔细看看BOOL/" itemprop="url">
+                  仔细看看你的BOOL
                 </a>
               
             
@@ -253,7 +253,7 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-12-29T17:02:06+08:00" content="2016-12-29">
+            <time itemprop="dateCreated" datetime="2016-12-29T17:34:11+08:00" content="2016-12-29">
               2016-12-29
             </time>
           </span>
@@ -283,9 +283,31 @@
       
         
           
-            <h3 id="今天结束了第一份工作"><a href="#今天结束了第一份工作" class="headerlink" title="今天结束了第一份工作"></a>今天结束了第一份工作</h3><p>2016年12月29日走完所有离职流程，中午就收拾完东西离开了公司。工作了2年，离开一个熟悉的地方总是有点不一样的感觉。</p>
-<h3 id="两年干了些什么"><a href="#两年干了些什么" class="headerlink" title="两年干了些什么"></a>两年干了些什么</h3><p><strong>1.</strong> 自学iOS两年，从小白到能够在已有业务下合理开发。学会了如何“自学” —— 静下心来。<br><strong>2.</strong> 担任App组长一年时间，带了4个新人，懂得如何分配开发任务。<br><strong>3.</strong> 两年时间维护一个主要App，产出2个从无到有的App。私底下额外开发一个电商App。经历了把一个一团糟的工程维护成一个“尚可顺利开发”的工程。<br><strong>4.</strong> iOS相关技术学习的比较广，但欠深入，需要把握好领域好好钻研。<br><strong>5.</strong> 学了些写文档、PS技能，参与各类需求会并参与讨论。<br><strong>6.</strong> 在职期间看着两个主管离职~</p>
-<h3 id="接下来干什么"><a href="#接下来干什么" class="headerlink" title="接下来干什么"></a>接下来干什么</h3><p><strong>1.</strong> 在iOS架构方面继续深入（第一份工作原因，对架构设计比较有兴趣）。<br><strong>2.</strong> 找一个中型以上的公司，好好工作~</p>
+            <h3 id="为啥要看这玩意"><a href="#为啥要看这玩意" class="headerlink" title="为啥要看这玩意"></a>为啥要看这玩意</h3><p>越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~</p>
+<h3 id="BOOL的定义"><a href="#BOOL的定义" class="headerlink" title="BOOL的定义"></a>BOOL的定义</h3><pre><code class="iOS">/// Type to represent a boolean value.
+#if (TARGET_OS_IPHONE &amp;&amp; __LP64__)  ||  TARGET_OS_WATCH
+#define OBJC_BOOL_IS_BOOL 1
+typedef bool BOOL;
+#else
+#define OBJC_BOOL_IS_CHAR 1
+typedef signed char BOOL; 
+// BOOL is explicitly signed so @encode(BOOL) == &quot;c&quot; rather than &quot;C&quot; 
+// even if -funsigned-char is used.
+#endif
+</code></pre>
+<p>伪代码解释下：  </p>
+<p>if (处于64位iPhone 或者 iWatch) {<br>　　BOOL就是bool  （非0即真）<br>} else {<br>　　BOOL就是signed char  （1个字节，取低8位。-128 ~ 127）<br>}  </p>
+<p>这里的else，最常见的就是32位架构的iPhone，比如iPhone5c/5/4s/4等。  </p>
+<hr>
+<p>这里就引申出一个可能存在的问题：</p>
+<pre><code class="iOS">- (void)doSomeThingWithA:(NSInteger)a {
+    NSInteger b = 28;
+    if (a + b) {
+        // 业务代码
+    }
+}
+</code></pre>
+<p>乍看之下，这段代码只要 <code>a != -28</code>，都是能够执行业务代码部分。在64位iPhone和iWatch机器里确实是如此，因为定义的BOOL就是bool，就是非0即真，你用负数也是真。<br>但是在32位机器里呢？如果a传入100，<code>a + b == 128</code>，二进制是  1000 0001 0000 0000 0000 0000 0000 0000（因为32位里NSInteger是int【话说最新的头文件定义里多了个<code>NS_BUILD_32_LIKE_64</code>，估计编译器可以设置32位的机器以64位来进行编译，这个这里暂时不展开讨论】，占用4个字节，每个字节8位嘛）。该数会强转为sign char，：取低8位 0000 0000 来判断。if中判定为0，则为假，不再执行业务代码。</p>
 
           
         
@@ -335,8 +357,8 @@
             
               
                 
-                <a class="post-title-link" href="/2016/10/14/你对@synthesize混淆了吗？/" itemprop="url">
-                  你对@synthesize混淆了吗？
+                <a class="post-title-link" href="/2016/12/29/第一份工作总结/" itemprop="url">
+                  第一份工作总结
                 </a>
               
             
@@ -349,8 +371,8 @@
               <i class="fa fa-calendar-o"></i>
             </span>
             <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-10-14T00:15:22+08:00" content="2016-10-14">
-              2016-10-14
+            <time itemprop="dateCreated" datetime="2016-12-29T17:02:06+08:00" content="2016-12-29">
+              2016-12-29
             </time>
           </span>
 
@@ -379,18 +401,9 @@
       
         
           
-            <ul>
-<li>简单谈谈@synthesize</li>
-</ul>
-<p>@synthesize是编译器自动生成setter/getter方法的关键词。当前开发中使用了@property后，会在.m中自动生成<code>@synthesize 属性名</code>，而不是@property本身帮我们生成setter/getter方法。</p>
-<ul>
-<li>@synthesize使用指定的属性</li>
-</ul>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">@interface ViewController ()</div><div class="line"></div><div class="line">@property (nonatomic, strong) NSObject *boy;</div><div class="line"></div><div class="line">@end</div><div class="line"></div><div class="line">@implementation ViewController &#123;</div><div class="line">NSObject *boy;</div><div class="line">NSObject *girl;</div><div class="line">&#125;</div><div class="line">@synthesize boy = girl;</div><div class="line"></div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">[super viewDidLoad];</div><div class="line"></div><div class="line">self.boy = [[NSObject alloc] init];</div><div class="line"></div><div class="line">NSLog(@&quot;请问那个孩子已经出生了？boy : %@  girl : %@&quot;,boy, girl);</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
-<ul>
-<li>1<br><font color="red">@implementation中声明的成员属性 boy 和@property生成的boy是否是同一个对象？</font><br>不是，@property生成的是_boy，就算你写了boy，生成的还是_boy，你的boy还是新的成员属性。</li>
-<li>2<br><font color="red">@synthesize boy = girl; 到底是把boy变成了girl，还是把girl变成了boy？</font><br>是把_boy的set方法<code>- (void)setBoy:(NSObject *)boy</code> 的实现改成了girl = boy，即把_boy 用 girl替代。已经不存在_boy这个成员变量了。</li>
-</ul>
+            <h3 id="今天结束了第一份工作"><a href="#今天结束了第一份工作" class="headerlink" title="今天结束了第一份工作"></a>今天结束了第一份工作</h3><p>2016年12月29日走完所有离职流程，中午就收拾完东西离开了公司。工作了2年，离开一个熟悉的地方总是有点不一样的感觉。</p>
+<h3 id="两年干了些什么"><a href="#两年干了些什么" class="headerlink" title="两年干了些什么"></a>两年干了些什么</h3><p><strong>1.</strong> 自学iOS两年，从小白到能够在已有业务下合理开发。学会了如何“自学” —— 静下心来。<br><strong>2.</strong> 担任App组长一年时间，带了4个新人，懂得如何分配开发任务。<br><strong>3.</strong> 两年时间维护一个主要App，产出2个从无到有的App。私底下额外开发一个电商App。经历了把一个一团糟的工程维护成一个“尚可顺利开发”的工程。<br><strong>4.</strong> iOS相关技术学习的比较广，但欠深入，需要把握好领域好好钻研。<br><strong>5.</strong> 学了些写文档、PS技能，参与各类需求会并参与讨论。<br><strong>6.</strong> 在职期间看着两个主管离职~</p>
+<h3 id="接下来干什么"><a href="#接下来干什么" class="headerlink" title="接下来干什么"></a>接下来干什么</h3><p><strong>1.</strong> 在iOS架构方面继续深入（第一份工作原因，对架构设计比较有兴趣）。<br><strong>2.</strong> 找一个中型以上的公司，好好工作~</p>
 
           
         
@@ -581,6 +594,111 @@
 
 
     
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/14/你对@synthesize混淆了吗？/" itemprop="url">
+                  你对@synthesize混淆了吗？
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-14T00:15:22+08:00" content="2016-10-14">
+              2016-10-14
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <ul>
+<li>简单谈谈@synthesize</li>
+</ul>
+<p>@synthesize是编译器自动生成setter/getter方法的关键词。当前开发中使用了@property后，会在.m中自动生成<code>@synthesize 属性名</code>，而不是@property本身帮我们生成setter/getter方法。</p>
+<ul>
+<li>@synthesize使用指定的属性</li>
+</ul>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">@interface ViewController ()</div><div class="line"></div><div class="line">@property (nonatomic, strong) NSObject *boy;</div><div class="line"></div><div class="line">@end</div><div class="line"></div><div class="line">@implementation ViewController &#123;</div><div class="line">NSObject *boy;</div><div class="line">NSObject *girl;</div><div class="line">&#125;</div><div class="line">@synthesize boy = girl;</div><div class="line"></div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">[super viewDidLoad];</div><div class="line"></div><div class="line">self.boy = [[NSObject alloc] init];</div><div class="line"></div><div class="line">NSLog(@&quot;请问那个孩子已经出生了？boy : %@  girl : %@&quot;,boy, girl);</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<ul>
+<li>1<br><font color="red">@implementation中声明的成员属性 boy 和@property生成的boy是否是同一个对象？</font><br>不是，@property生成的是_boy，就算你写了boy，生成的还是_boy，你的boy还是新的成员属性。</li>
+<li>2<br><font color="red">@synthesize boy = girl; 到底是把boy变成了girl，还是把girl变成了boy？</font><br>是把_boy的set方法<code>- (void)setBoy:(NSObject *)boy</code> 的实现改成了girl = boy，即把_boy 用 girl替代。已经不存在_boy这个成员变量了。</li>
+</ul>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
   </section>
 
   
@@ -622,7 +740,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">3</span>
+              <span class="site-state-item-count">4</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
