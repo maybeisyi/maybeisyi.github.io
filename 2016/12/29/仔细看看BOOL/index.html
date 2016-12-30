@@ -96,7 +96,7 @@ BOOL的定义/// Type to represent a boolean value.
 BOOL的定义/// Type to represent a boolean value.
 #if (TARGET_OS_IPHONE &amp;amp;&amp;amp; __LP64__)  ||  TARGET_OS_WATCH
 #define OBJC_BOOL">
-<meta property="og:updated_time" content="2016-12-30T09:27:40.000Z">
+<meta property="og:updated_time" content="2016-12-30T10:19:25.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="仔细看看你的BOOL">
 <meta name="twitter:description" content="为啥要看这玩意越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~
@@ -300,7 +300,7 @@ typedef signed char BOOL;
 </code></pre>
 <p>伪代码解释下：  </p>
 <p>if (处于64位iPhone 或者 iWatch) {<br>　　BOOL就是bool  （非0即真）<br>} else {<br>　　BOOL就是signed char  （1个字节，取低8位。-128 ~ 127）<br>}  </p>
-<p>这里的else，最常见的就是32位架构的iPhone，比如iPhone5c/5/4s/4等。  </p>
+<p>这里的else，最常见的就是32位架构的iPhone，比如iPhone5c/5/4s/4等。<br>定义里可以看出，BOOL你原来是个宏啊，亏你还是OC中的基本数据类型~ 真是给宏长脸了啊。  </p>
 <hr>
 <p>这里就引申出一个可能存在的问题：</p>
 <pre><code class="iOS">- (void)doSomeThingWithA:(NSInteger)a {
@@ -311,6 +311,41 @@ typedef signed char BOOL;
 }
 </code></pre>
 <p>乍看之下，这段代码只要 <code>a != -28</code>，都是能够执行业务代码部分。在64位iPhone和iWatch机器里确实是如此，因为定义的BOOL就是bool，就是非0即真，你用负数也是真。<br>但是在32位机器里呢？如果a传入100，<code>a + b == 128</code>，二进制是  1000 0001 0000 0000 0000 0000 0000 0000（因为32位里NSInteger是int【话说最新的头文件定义里多了个<code>NS_BUILD_32_LIKE_64</code>，估计编译器可以设置32位的机器以64位来进行编译，这个这里暂时不展开讨论】，占用4个字节，每个字节8位嘛）。该数会强转为sign char，：取低8位 0000 0000 来判断。if中判定为0，则为假，不再执行业务代码。</p>
+<h3 id="YES-NO的定义"><a href="#YES-NO的定义" class="headerlink" title="YES / NO的定义"></a>YES / NO的定义</h3><p>说到了BOOL，肯定要说说YES / NO。<br>老板，上代码：</p>
+<pre><code class="iOS">#if __has_feature(objc_bool)
+#define YES __objc_yes
+#define NO  __objc_no
+#else
+#define YES ((BOOL)1)
+#define NO  ((BOOL)0)
+#endif
+</code></pre>
+<p>这两玩意也是宏。这里定义了YES / NO在不同条件下的真实类型。上述的<code>objc_bool</code>暂时还没有找到具体在哪定义，个人猜测意思应该是BOOL为bool的时候。否则YES / NO 即为sign char中的1和0。  </p>
+<hr>
+<p>所以这里又来了个老生常谈的问题：不要拿数值和 YES / NO 的比较作为条件判断，如<code>if (a + b == YES)</code>。</p>
+<h3 id="扩展内容"><a href="#扩展内容" class="headerlink" title="扩展内容"></a>扩展内容</h3><p>我们来看看C99中的bool定义（刨根就要刨的深一点）：</p>
+<pre><code class="iOS">#ifndef __STDBOOL_H
+#define __STDBOOL_H
+
+/* Don&apos;t define bool, true, and false in C++, except as a GNU extension. */
+#ifndef __cplusplus
+#define bool _Bool
+#define true 1
+#define false 0
+#elif defined(__GNUC__) &amp;&amp; !defined(__STRICT_ANSI__)
+/* Define _Bool, bool, false, true as a GNU extension. */
+#define _Bool bool
+#define bool  bool
+#define false false
+#define true  true
+#endif
+
+#define __bool_true_false_are_defined 1
+
+#endif /* __STDBOOL_H */
+</code></pre>
+<p>这是stdbool.h中的bool的定义（C99标准）。<br>bool其实还是个宏（又一次给宏长脸）。真实类型为_Bool。_Bool其实是占1个字节的一种类型，1为真，0为假。定义中的true与false分别等于1和0也说明了这一点。<br>而如果有别的数值转换为bool类型（_Bool），则非0的所有数值均转化为1，正是这点，让bool类型在128时也能判断为真。  </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>为了看清bool与BOOL，挖了不少C中的头文件，宏真的是个好东西，真的很长脸~<br>可能这些知识在你平时开发中，遇上10000个bug才会派上用场一次。但是越是了解这些细微的、基础的知识，对程序本质的理解也就越清晰。</p>
 
       
     </div>
@@ -455,7 +490,7 @@ typedef signed char BOOL;
               
             
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥要看这玩意"><span class="nav-number">1.</span> <span class="nav-text">为啥要看这玩意</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BOOL的定义"><span class="nav-number">2.</span> <span class="nav-text">BOOL的定义</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为啥要看这玩意"><span class="nav-number">1.</span> <span class="nav-text">为啥要看这玩意</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#BOOL的定义"><span class="nav-number">2.</span> <span class="nav-text">BOOL的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#YES-NO的定义"><span class="nav-number">3.</span> <span class="nav-text">YES / NO的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#扩展内容"><span class="nav-number">4.</span> <span class="nav-text">扩展内容</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#总结"><span class="nav-number">5.</span> <span class="nav-text">总结</span></a></li></ol></div>
             
           </div>
         </section>
