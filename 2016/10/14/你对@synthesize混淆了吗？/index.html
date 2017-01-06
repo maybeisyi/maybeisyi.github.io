@@ -94,7 +94,7 @@
 <meta property="og:description" content="简单谈谈@synthesize
 
 @synthesize是编译器自动生成setter/getter方法的实现（实现实现实现很重要）的关键词。当前开发中使用了@property后，会在.m中自动生成@synthesize 属性名 = _属性名，而不是@property本身帮我们生成setter/getter方法，@property本身只是生成setter/getter方法的声明（声明声明声明很重要">
-<meta property="og:updated_time" content="2017-01-06T17:14:39.000Z">
+<meta property="og:updated_time" content="2017-01-06T17:17:01.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="你对@synthesize混淆了吗？">
 <meta name="twitter:description" content="简单谈谈@synthesize
@@ -287,12 +287,12 @@
 <li>简单谈谈@synthesize</li>
 </ul>
 <p>@synthesize是编译器自动生成setter/getter方法的实现（实现实现实现很重要）的关键词。当前开发中使用了@property后，会在.m中自动生成<code>@synthesize 属性名 = _属性名</code>，而不是@property本身帮我们生成setter/getter方法，@property本身只是生成setter/getter方法的声明（声明声明声明很重要）。</p>
-<p>@synthesize 写出来的代码可能会长这样：<br>1<code>@synthesize boy;</code><br>2<code>@synthesize boy = boy;</code><br>3<code>@synthesize boy = _boy;</code><br>4<code>@implementation ViewController { NSObject *girl; } @synthesize boy = girl;</code>（girl是事先声明好的一个变量）<br>5  <code>@synthesize boy = noDeclaredVar;</code>（noDeclaredVar是指没有声明过，随便打出来的）  </p>
+<p>@synthesize 写出来的代码可能会长这样：<br>1　<code>@synthesize boy;</code><br>2　<code>@synthesize boy = boy;</code><br>3　<code>@synthesize boy = _boy;</code><br>4　<code>@implementation ViewController { NSObject *girl; } @synthesize boy = girl;</code>（girl是事先声明好的一个变量）<br>5　<code>@synthesize boy = noDeclaredVar;</code>（noDeclaredVar是指没有声明过，随便打出来的）  </p>
 <p>上述5个代码都是能够正常使用的。看着有点绕，新手往往看不懂这到底是干嘛的。<br>简单解释下，<code>@synthesize boy</code>默认等于<code>@synthesize boy = boy;</code>。那么只要理解一种：<code>@synthesize xx = yy;</code>即可。这个“等式”表明“之前用<code>@property (nonatomic, strong) NSObject *boy;</code>”声明的这个‘变量’在setter/getter方法中实际使用的变量是“yy”，如果“yy”没有手动声明，那么会自动声明为一个变量。  </p>
 <blockquote>
 <p>补充一点：xx必须是用@property声明过的。  </p>
 </blockquote>
-<p>我们对照着上面的5个关键字代码看看。<br>1  在@property 声明的boy，在setter/getter方法中使用<code>NSObject *boy;</code>这个变量来赋值与返回。<br>2  同1。<br>3  在@property 声明的boy，在setter/getter方法中使用<code>NSObject * _boy;</code>这个变量来赋值与返回。<br>4  在@property 声明的boy，在setter/getter方法中使用<code>NSObject *girl;</code>这个变量来赋值与返回。<br>5  在@property 声明的boy，在setter/getter方法中使用<code>NSObject * noDeclaredVar;</code>这个变量来赋值与返回。  </p>
+<p>我们对照着上面的5个关键字代码看看。<br>1　在@property 声明的boy，在setter/getter方法中使用<code>NSObject *boy;</code>这个变量来赋值与返回。<br>2　同1。<br>3　在@property 声明的boy，在setter/getter方法中使用<code>NSObject * _boy;</code>这个变量来赋值与返回。<br>4　在@property 声明的boy，在setter/getter方法中使用<code>NSObject *girl;</code>这个变量来赋值与返回。<br>5　在@property 声明的boy，在setter/getter方法中使用<code>NSObject * noDeclaredVar;</code>这个变量来赋值与返回。  </p>
 <ul>
 <li>@synthesize使用指定的属性实践</li>
 </ul>
