@@ -110,7 +110,7 @@
 <meta property="og:image" content="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbimp5ok8dj30z60v6n0m.jpg">
 <meta property="og:image" content="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbj5p6czkuj31w00wwdlt.jpg">
 <meta property="og:image" content="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg">
-<meta property="og:updated_time" content="2017-01-08T06:19:19.000Z">
+<meta property="og:updated_time" content="2017-01-08T06:24:06.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二级指针与ARC不为人知的特性">
 <meta name="twitter:description" content="先看一眼熟知的代码- (void)viewDidLoad {
@@ -366,6 +366,7 @@
 <p>为了方便查看结果，加了几行打印~  </p>
 <pre><code class="iOS">1.0 thisIsNilView指向的实例 : (null)
 1.1 thisIsNilView指针的地址 : 0x16fd35f18
+
 --------- 开始执行createView:方法 ---------
 2.0 方法里的view指向的实例 ： (null)
 2.1 方法里的view指针的地址 ： 0x16fd35ee8
@@ -373,6 +374,7 @@
 3.0 方法里的view指向的实例 ： &lt;UIView: 0x12de0b6a0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x610000034640&gt;&gt;
 3.1 方法里的view指针的地址 ： 0x16fd35ee8
 --------- 执行createView:方法结束 ---------
+
 4.0 thisIsNilView指向的实例 : (null)
 4.1 thisIsNilView指针的地址 : 0x16fd35f18
 </code></pre>
@@ -390,7 +392,7 @@ void testPointCopy(int *pointer) {
 }
 </code></pre>
 <p>在testIntCopy中传入a，那么将会拷贝一份a的内容：10（数值） 到 b（int类型的变量） 中。之后就可以正常使用了。<br>在testPointCopy中传入p，那么将会拷贝一份p的内容：指向a在内存中的地址（如0xa） 到 pointer（int *类型的变量） 中。之后就可以正常使用了，比如修改pointer指向的内存中的值。<br>这样子理解是不是轻松一点？那么之前第二步的图就可以理解了。  </p>
-<p>#####这说明了一个问题：一级指针作为参数传递无法修改原指针指向的值。  </p>
+<p><strong>这说明了一个问题：一级指针作为参数传递无法修改原指针指向的值。</strong>  </p>
 <hr>
 <h4 id="2-那得用二级指针才能在方法里创建并回传给调用者一个view是吗？"><a href="#2-那得用二级指针才能在方法里创建并回传给调用者一个view是吗？" class="headerlink" title="2. 那得用二级指针才能在方法里创建并回传给调用者一个view是吗？"></a>2. 那得用二级指针才能在方法里创建并回传给调用者一个view是吗？</h4><p>是不是我们先上个代码看看：  </p>
 <pre><code class="iOS">- (void)viewDidLoad {
@@ -422,12 +424,14 @@ void testPointCopy(int *pointer) {
 <p>看看执行结果：  </p>
 <pre><code class="iOS">1.0 thisIsNilView指向的实例 : (null)
 1.1 thisIsNilView指针的地址 : 0x16fd75f18
+
 --------- 开始执行createViewWithSecRankPointer:方法 ---------
 2.0 方法里的*view指向的实例 ： (null)
 2.1 方法里的*view指针的地址 ： 0x16fd75f10
 3.0 方法里的*view指向的实例 ： &lt;UIView: 0x15bd07ff0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x174033f20&gt;&gt;
 3.1 方法里的*view指针的地址 ： 0x16fd75f10
 --------- 执行createViewWithSecRankPointer:方法结束 ---------
+
 4.0 thisIsNilView指向的实例 : &lt;UIView: 0x15bd07ff0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x174033f20&gt;&gt;
 4.1 thisIsNilView指针的地址 : 0x16fd75f18
 </code></pre>
@@ -435,12 +439,12 @@ void testPointCopy(int *pointer) {
 <p>画个内存图看看先：<br>第一步：<br><img src="http://ww3.sinaimg.cn/mw690/006fcg2Wgw1fbimp63306j30yo0uydif.jpg" alt="我是配图"><br>第二步：<br><img src="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbimp4tioyj30zc0vqq67.jpg" alt="我是配图"><br>第三步：<br><img src="http://ww2.sinaimg.cn/mw690/006fcg2Wgw1fbimp4u19lj30z20vudjd.jpg" alt="我是配图"><br>第四步：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbimp5ok8dj30z60v6n0m.jpg" alt="我是配图">  </p>
 <p>这里真的有两个很神奇的地方：<br><strong>1 第二步为何会多出一个指针？</strong><br><strong>2 第四步为何会把原先指向nil的thisIsNilView指向了新创建的UIView对象？</strong>  </p>
 <hr>
-<h4 id="3-总算要说说ARC不为人知的特性了"><a href="#3-总算要说说ARC不为人知的特性了" class="headerlink" title="3. 总算要说说ARC不为人知的特性了"></a>3. 总算要说说ARC不为人知的特性了</h4><p>单从上述代码时无法解释为何会产生这种现象的。<br>在浏览官方文档《Transitioning to ARC Release Notes》的时候，偶然发现有这么一段：<br><img src="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbj5p6czkuj31w00wwdlt.jpg" alt="我是配图"><br>文中提到，二级指针作为参数“通常”都是<strong>autoreleasing修饰的，注意通常这个词，后面会提到。当实际传入的参数为</strong>strong修饰的时候，编译器会创建一个用__autoreleasing修饰的临时变量tmp，用来和方法参数的修饰符匹配，方法执行完毕后再重新用tmp赋值回error。  （苹果这么做主要是为了保证在方法内部创建出来的对象能够被良好地释放，因为createViewWithSecRankPointer:方法不能保证调用者在拿到这个对象后能够合理释放掉）<br>编译器的这种行为刚好能够印证我们上述“很神奇”的两个地方：<br><strong>1 tmp变量刚好就是第二步中多出的那个指针0x16fd75f10，用这个临时变量来保存新创建的UIView对象</strong><br><strong>2 error = tmp刚好对应我们的第四步，出了方法后重新赋值给原来的变量thisIsNilView</strong>  </p>
-<p>BUT：我们的方法参数并不是(UIView <em> __autoreleasing </em>)这种类型啊，我们是(UIView **)类型呢。其实苹果文档里说的“通常”是有依据的：  </p>
+<h4 id="3-总算要说说ARC不为人知的特性了"><a href="#3-总算要说说ARC不为人知的特性了" class="headerlink" title="3. 总算要说说ARC不为人知的特性了"></a>3. 总算要说说ARC不为人知的特性了</h4><p>单从上述代码时无法解释为何会产生这种现象的。<br>在浏览官方文档《Transitioning to ARC Release Notes》的时候，偶然发现有这么一段：<br><img src="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbj5p6czkuj31w00wwdlt.jpg" alt="我是配图"><br>文中提到，二级指针作为参数“通常”都是<code>__autoreleasing</code>修饰的，注意通常这个词，后面会提到。当实际传入的参数为<code>__strong</code>修饰的时候，编译器会创建一个用<code>__autoreleasing</code>修饰的临时变量tmp，用来和方法参数的修饰符匹配，方法执行完毕后再重新用tmp赋值回error。  （苹果这么做主要是为了保证在方法内部创建出来的对象能够被良好地释放，因为createViewWithSecRankPointer:方法不能保证调用者在拿到这个对象后能够合理释放掉）<br>编译器的这种行为刚好能够印证我们上述“很神奇”的两个地方：<br><strong>1 tmp变量刚好就是第二步中多出的那个指针0x16fd75f10，用这个临时变量来保存新创建的UIView对象</strong><br><strong>2 error = tmp刚好对应我们的第四步，出了方法后重新赋值给原来的变量thisIsNilView</strong>  </p>
+<p>BUT：我们的方法参数并不是<code>(UIView * __autoreleasing *)</code>这种类型啊，我们是<code>(UIView **)</code>类型呢。其实苹果文档里说的“通常”是有依据的：  </p>
 <blockquote>
-<p>编译器会把指向OC对象的指针的二级指针参数自动加上__autoreleasing修饰符。<br>我们可以通过Xcode自动补全功能一窥究竟：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg" alt="我是配图">   </p>
+<p>编译器会把指向OC对象的指针的二级指针参数自动加上<code>__autoreleasing</code>修饰符。<br>我们可以通过Xcode自动补全功能一窥究竟：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg" alt="我是配图">   </p>
 </blockquote>
-<h4 id="4-我们反过来验证下ARC不为人知的特性"><a href="#4-我们反过来验证下ARC不为人知的特性" class="headerlink" title="4. 我们反过来验证下ARC不为人知的特性"></a>4. 我们反过来验证下ARC不为人知的特性</h4><p>既然文档里说了，<strong>strong与</strong>autoreleasing语义不符，所以编译器会这么做，那么如果我们使用__autoreleasing修饰了thisIsNilView指针呢。<br>看看修改后的代码：  </p>
+<h4 id="4-我们反过来验证下ARC不为人知的特性"><a href="#4-我们反过来验证下ARC不为人知的特性" class="headerlink" title="4. 我们反过来验证下ARC不为人知的特性"></a>4. 我们反过来验证下ARC不为人知的特性</h4><p>既然文档里说了，<code>__strong</code>与<code>__autoreleasing</code>语义不符，所以编译器会这么做，那么如果我们使用<code>__autoreleasing</code>修饰了thisIsNilView指针呢。<br>看看修改后的代码：  </p>
 <pre><code class="iOS">- (void)viewDidLoad {
     [super viewDidLoad];
 
@@ -465,12 +469,14 @@ void testPointCopy(int *pointer) {
 <p>直接看看执行结果： </p>
 <pre><code class="iOS">1.0 thisIsNilView指向的实例 : (null)
 1.1 thisIsNilView指针的地址 : 0x16fde9f18
+
 --------- 开始执行createViewWithSecRankPointer:方法 ---------
 2.0 方法里的*view指向的实例 ： (null)
 2.1 方法里的*view指针的地址 ： 0x16fde9f18
 3.0 方法里的*view指向的实例 ： &lt;UIView: 0x10020c4a0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x170222740&gt;&gt;
 3.1 方法里的*view指针的地址 ： 0x16fde9f18
 --------- 执行createViewWithSecRankPointer:方法结束 ---------
+
 4.0 thisIsNilView指向的实例 : &lt;UIView: 0x10020c4a0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x170222740&gt;&gt;
 4.1 thisIsNilView指针的地址 : 0x16fde9f18
 </code></pre>
