@@ -110,7 +110,7 @@
 <meta property="og:image" content="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbimp5ok8dj30z60v6n0m.jpg">
 <meta property="og:image" content="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbj5p6czkuj31w00wwdlt.jpg">
 <meta property="og:image" content="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg">
-<meta property="og:updated_time" content="2017-01-08T06:24:06.000Z">
+<meta property="og:updated_time" content="2017-01-08T06:30:08.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="二级指针与ARC不为人知的特性">
 <meta name="twitter:description" content="先看一眼熟知的代码- (void)viewDidLoad {
@@ -379,8 +379,8 @@
 4.1 thisIsNilView指针的地址 : 0x16fd35f18
 </code></pre>
 <p>额，好像thisIsNilView这个指针（位于0x16fd35f18这块内存区域中）传入方法后变成另外一个指针（位于0x16fd35ee8这块内存区域中）了啊。<br>插个内存图理解下：<br>第一步：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbikq6k5cvj30za0uemyx.jpg" alt="我是配图"><br>第二步：<br><img src="http://ww2.sinaimg.cn/mw690/006fcg2Wgw1fbikq60e2sj30yc0vuack.jpg" alt="我是配图"><br>第三步：<br><img src="http://ww2.sinaimg.cn/mw690/006fcg2Wgw1fbikq59m1pj30xs0vmq5l.jpg" alt="我是配图"><br>第四步：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbikq600v6j30z80v0wgw.jpg" alt="我是配图">  </p>
-<p>为何第二步进入方法后会凭空多出一个指针？哦忘了说，指针也是个变量，指针作为参数传递的时候，指针“本身”也是值传递，也就是说复制了一个“与原指针指向相同内存地址”的指针。好像有点绕，其实就是第二步的图。  </p>
-<p>回想下C语言基础中的参数传递：基本数据类型是复制一份进行传递，但是指针传递是引用传递，可以修改变量本身的内容。说是这样说，但是不够全面。指针传递其实也是个复制传递，只不过复制的是“指针”，但是复制的指针中的内容（也就是指针指向的地址）还是指向了原来指向的内容。  </p>
+<p>为何第二步进入方法后会凭空多出一个指针？哦忘了说，<strong>指针也是个变量，指针作为参数传递的时候，指针“本身”也是值传递</strong>，也就是说复制了一个“与原指针指向相同内存地址”的指针。好像有点绕，其实就是第二步的图。  </p>
+<p>回想下C语言基础中的参数传递：基本数据类型是复制一份进行传递，但是指针传递是引用传递，可以修改变量本身的内容。说是这样说，但是不够全面。指针传递其实也是个复制传递，只不过复制的是“指针”，但是“复制后的指针”中的内容（也就是指针指向的地址）还是指向了原来指向的内容。  </p>
 <p>这个指针复制传递还是有那么点儿绕，我们用指针与int基本类型做个对比：<br><code>int a = 10;</code><br>和<br><code>int *p = &amp;a;</code><br>对应关系：<br>a 是个 int 类型的变量；<br>a 的内容是 10；<br>p 是个 int * 类型的变量（俗称指针）；<br>p 的内容是 a这个变量在内存中的地址（比如0xa）；  </p>
 <p>函数：  </p>
 <pre><code class="iOS">void testIntCopy(int b) {
@@ -435,15 +435,16 @@ void testPointCopy(int *pointer) {
 4.0 thisIsNilView指向的实例 : &lt;UIView: 0x15bd07ff0; frame = (100 100; 100 100); layer = &lt;CALayer: 0x174033f20&gt;&gt;
 4.1 thisIsNilView指针的地址 : 0x16fd75f18
 </code></pre>
-<p>很好，执行方法完毕后thisIsNilView有值了！而且还是方法里新创建的UIView实例！<br><strong>等等！好像哪里有点不对！</strong><br>为何方法里的<em> view（也就是thisIsNilView指针）和方法外面的thisIsNilView不是同一个？？？？？<br>根据我们上述4点严谨的分析，方法里的</em> view应该就是thisIsNilView这个指针无误！<br>在实践结果里，方法内部出现了一个位于0x16fd75f10内存地址中的指针，然后让这个指针指向了一个新创建的UIView实例，然鹅这和thisIsNilView这个指针（位于0x16fd75f18内存地址）有毛线关系？？？？？然鹅出了方法thisIsNilView居然还是指向了那个新创建的对象！！！！！  </p>
+<p>很好，执行方法完毕后thisIsNilView有值了！而且还是方法里新创建的UIView实例！<br><strong>等等！好像哪里有点不对！</strong><br>为何方法里的<code>*view</code>（也就是thisIsNilView指针）和方法外面的thisIsNilView不是同一个？？？？？<br>根据我们上述4点严谨的分析，方法里的<code>*view</code>应该就是thisIsNilView这个指针无误！<br>在实践结果里，方法内部出现了一个位于0x16fd75f10内存地址中的指针，然后让这个指针指向了一个新创建的UIView实例，然鹅这和thisIsNilView这个指针（位于0x16fd75f18内存地址）有毛线关系？？？？？然鹅出了方法thisIsNilView居然还是指向了那个新创建的对象！！！！！  </p>
 <p>画个内存图看看先：<br>第一步：<br><img src="http://ww3.sinaimg.cn/mw690/006fcg2Wgw1fbimp63306j30yo0uydif.jpg" alt="我是配图"><br>第二步：<br><img src="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbimp4tioyj30zc0vqq67.jpg" alt="我是配图"><br>第三步：<br><img src="http://ww2.sinaimg.cn/mw690/006fcg2Wgw1fbimp4u19lj30z20vudjd.jpg" alt="我是配图"><br>第四步：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbimp5ok8dj30z60v6n0m.jpg" alt="我是配图">  </p>
 <p>这里真的有两个很神奇的地方：<br><strong>1 第二步为何会多出一个指针？</strong><br><strong>2 第四步为何会把原先指向nil的thisIsNilView指向了新创建的UIView对象？</strong>  </p>
 <hr>
 <h4 id="3-总算要说说ARC不为人知的特性了"><a href="#3-总算要说说ARC不为人知的特性了" class="headerlink" title="3. 总算要说说ARC不为人知的特性了"></a>3. 总算要说说ARC不为人知的特性了</h4><p>单从上述代码时无法解释为何会产生这种现象的。<br>在浏览官方文档《Transitioning to ARC Release Notes》的时候，偶然发现有这么一段：<br><img src="http://ww4.sinaimg.cn/mw690/006fcg2Wgw1fbj5p6czkuj31w00wwdlt.jpg" alt="我是配图"><br>文中提到，二级指针作为参数“通常”都是<code>__autoreleasing</code>修饰的，注意通常这个词，后面会提到。当实际传入的参数为<code>__strong</code>修饰的时候，编译器会创建一个用<code>__autoreleasing</code>修饰的临时变量tmp，用来和方法参数的修饰符匹配，方法执行完毕后再重新用tmp赋值回error。  （苹果这么做主要是为了保证在方法内部创建出来的对象能够被良好地释放，因为createViewWithSecRankPointer:方法不能保证调用者在拿到这个对象后能够合理释放掉）<br>编译器的这种行为刚好能够印证我们上述“很神奇”的两个地方：<br><strong>1 tmp变量刚好就是第二步中多出的那个指针0x16fd75f10，用这个临时变量来保存新创建的UIView对象</strong><br><strong>2 error = tmp刚好对应我们的第四步，出了方法后重新赋值给原来的变量thisIsNilView</strong>  </p>
 <p>BUT：我们的方法参数并不是<code>(UIView * __autoreleasing *)</code>这种类型啊，我们是<code>(UIView **)</code>类型呢。其实苹果文档里说的“通常”是有依据的：  </p>
 <blockquote>
-<p>编译器会把指向OC对象的指针的二级指针参数自动加上<code>__autoreleasing</code>修饰符。<br>我们可以通过Xcode自动补全功能一窥究竟：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg" alt="我是配图">   </p>
+<p>编译器会把指向OC对象的指针的二级指针参数自动加上<code>__autoreleasing</code>修饰符。  </p>
 </blockquote>
+<p>我们可以通过Xcode自动补全功能一窥究竟：<br><img src="http://ww1.sinaimg.cn/mw690/006fcg2Wgw1fbj65c4f3uj311e03i75p.jpg" alt="我是配图">   </p>
 <h4 id="4-我们反过来验证下ARC不为人知的特性"><a href="#4-我们反过来验证下ARC不为人知的特性" class="headerlink" title="4. 我们反过来验证下ARC不为人知的特性"></a>4. 我们反过来验证下ARC不为人知的特性</h4><p>既然文档里说了，<code>__strong</code>与<code>__autoreleasing</code>语义不符，所以编译器会这么做，那么如果我们使用<code>__autoreleasing</code>修饰了thisIsNilView指针呢。<br>看看修改后的代码：  </p>
 <pre><code class="iOS">- (void)viewDidLoad {
     [super viewDidLoad];
