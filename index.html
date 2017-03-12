@@ -239,6 +239,158 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/12/DYLeftSlipManager简析/" itemprop="url">
+                  DYLeftSlipManager侧滑菜单简析
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-12T23:22:06+08:00" content="2017-03-12">
+              2017-03-12
+            </time>
+          </span>
+
+          
+
+          
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="标题是简析，不是解析"><a href="#标题是简析，不是解析" class="headerlink" title="标题是简析，不是解析"></a>标题是简析，不是解析</h3><blockquote>
+<p>所以我只谈思路，不谈详细实现</p>
+</blockquote>
+<p><strong>DYLeftSlipManager是一个侧滑菜单组件，它与别的侧滑菜单不同的是，它将“侧面菜单”以及“主页面”之间完全解耦和。</strong></p>
+<p><a href="https://github.com/maybeisyi/DYLeftSlipManager" target="_blank" rel="external">GitHub地址：https://github.com/maybeisyi/DYLeftSlipManager</a></p>
+<p>之前在各大论坛上看到的侧滑菜单，各种仿QQ侧滑菜单，仿XX侧滑等等，均是在同一个ViewController中，添加一个侧面的视图，然后通过手势balabala的。能用吗？当然能用，只要你不嫌你的VC够臃肿。</p>
+<p>侧滑菜单页面的内容往往和主页面的内容关联度不大（部分应用中也有见到是有关联的），一般来说都是可以独立为一块业务的（有关联的基本也能抽象为一块独立业务）。在这种场景下，你认为两个业务同写在一个VC里真的好吗？</p>
+<p>所以就有了这个轮子。</p>
+<h3 id="轮子思路"><a href="#轮子思路" class="headerlink" title="轮子思路"></a>轮子思路</h3><ol>
+<li><p>如何抽象出这部分的业务？</p>
+<p>业务的抽象还是需要靠类（甚至于模块）来进行划分。</p>
+<p>​</p>
+</li>
+<li><p>如何分离出这部分页面？</p>
+<p>页面的分离，要么是自定义view，要么是另开一个VC。</p>
+<p>自定义view可以实现页面的分离，但是业务逻辑很难全都塞入view中进行管理，因为业务，那是VC或者单独的业务类进行管理。<strong>所以另开一个VC是目前较佳的选择。</strong></p>
+<p>​</p>
+</li>
+<li><p>如何在当前侧滑的场景下另开一个VC？</p>
+<p>首先不要将ViewController和view在脑海中混在一起，不要将VC当做view。VC是一个抽象的内容，只是一堆代码，你是看不见VC的，<strong>App上你看见的才是真真切切的view</strong>，只不过VC通常作为一个“完整页面（一个手机屏幕大小）”的“容器”存在而已。所谓“容器”，你理解成view是VC的一个属性即可。</p>
+<p>为了帮助你理解VC和view的关系，这里我举个简单的小栗子：</p>
+<p>这里我自定义一个继承自NSObject的类：MyDog（<strong>用这个名字是为了有别于VC，这就是一条🐶啊，没错！</strong>）</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line">@interface MyDog : NSObject</div><div class="line"></div><div class="line">@property (nonatomic, strong) UIView *view;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div></pre></td><td class="code"><pre><div class="line">@implementation MyDog</div><div class="line"></div><div class="line">- (instancetype)init &#123;</div><div class="line">    if ((self = [super init])) &#123;</div><div class="line">        [self loadView];</div><div class="line">    &#125;</div><div class="line">    return self;</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)loadView &#123;</div><div class="line">    self.view = [[UIView alloc] initWithFrame:[UIScreen mainScreen].bounds];</div><div class="line">    [self viewDidLoad];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    // balabala</div><div class="line">    [self viewWillAppear];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)viewWillAppear &#123;</div><div class="line">    // balabala</div><div class="line">    [self viewDidAppear];</div><div class="line">&#125;</div><div class="line"></div><div class="line">- (void)viewDidAppear &#123;</div><div class="line">    // balabala</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>这里的狗，含有一个view的属性，还自定义了一些和VC“很像”的方法。</p>
+<p>到这里应该没问题。</p>
+<p>然后我们在默认的ViewController.m中，addSubview，把狗的view显示出来：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">@implementation ViewController</div><div class="line"></div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    [super viewDidLoad];</div><div class="line">    </div><div class="line">    MyDog *dog = [[MyDog alloc] init];</div><div class="line">    [self.view addSubview:dog.view];</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>没问题把，狗的view确实显示出来了吧？那么，狗有个view，新建一个VC也有个view，我们是不是可以把dog换成VC呢？</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    [super viewDidLoad];</div><div class="line">    </div><div class="line">    UIViewController *VC = [[UIViewController alloc] init];</div><div class="line">    VC.view.frame = CGRectMake(100, 100, 100, 100);</div><div class="line">    VC.view.backgroundColor = [UIColor redColor];</div><div class="line">    [self.view addSubview:VC.view];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>OK吧？现在你想清楚VC和view的关系了吧？</p>
+<p>你没想清楚MyDog和VC的关系？这么说把，Dog无法知道view在系统中何时willAppear、DidAppear等节点的事情，所以无法精确的管理view的生命周期，但是VC可以，因为VC是苹果提供的类，它的名字是“<strong>UIViewController</strong>”，也就是“view的控制器、管理器”，所以VC能管理view的生命周期，所以我们在VC里写业务会更方便开发！</p>
+<p>说了那么多，我就想说明一个观点：</p>
+<blockquote>
+<p>在一个VC里（主页面），要另开一个VC（侧滑菜单页面），那就创建一个嘛，然后把侧滑页面的view <code>addSubview</code>到主页面里不就完事了？</p>
+</blockquote>
+<p>好了，业务与页面都被抽象到另一个VC了（当然了你要自定义一个侧滑菜单VC）。那么主页面的VC和侧滑菜单页面的VC已经逻辑分离，耦合松散了。只不过，主页面还必须知道有“侧滑页面”这个VC的存在。</p>
+</li>
+<li><p>进一步解耦合</p>
+<p>在第3点中，我们已经初步解耦合了，但是是不是有更优雅的方式？</p>
+<p>回想NavigationController，这个控制器存在的意义是什么？它可以将两个VC进一步解耦合。</p>
+<p>这个进一步解耦合是如何体现的呢？回想第3点，我们已经做到了将两块业务分散到了两个VC中，但是，view还是完全耦合在一起的，因为主页面的view和侧滑菜单页面的view是通过<code>addSubview</code>的方式进行关联的。而NaviagtionController就是进一步将view解耦，通过NavigationController.view。</p>
+<p>每个导航栏都有自己的view，上面只有一个tabbar视图，下方是空视图，第一个VC的view是<code>addSubview</code>到导航栏的view上面的。然后我们push了第二个VC，那么第二个VC的view此时就不是直接<code>addSubview</code>到第一个VC的view上去的，而是add到NavigationController.view上去的，然后伴随推入的动画将第二个VC的view进行显示。此时第一个VC的view和第二个VC的view，不在是“父子”关系，而是“兄弟”关系了。</p>
+<p>能理解这层解耦合关系吧？那么我们来说说我们的侧滑菜单如何解耦合。</p>
+</li>
+<li><p>侧滑菜单如何解耦合—控制器转场</p>
+<p>这里不细说控制器转场如何实现，想学习的google一堆。这里想说的是转场究竟是个什么东西。</p>
+<p><strong>控制器转场就是通过一系列动画，操作两个VC的view进行切换显示。切换显示的时候，会有两个VC的父view：containerView，然后两个VC的view在上面add、remove，再加点动画，就可以了</strong></p>
+<p>无论是push还是present，都是转场，就是操作view的<code>addSubview</code>或者<code>removeFromSuperview</code>。</p>
+<p>一是给两个VC解耦，二是做动画，用户体验更友好。</p>
+<blockquote>
+<p>控制器转场的本质就是view做动画，操作view，和你的VC没有太大关系</p>
+</blockquote>
+<p>明白这个道理后，熟练使用各种动画技能的你就可以在转场中行云流水了。</p>
+<p>等等，侧滑可是两个界面同时显示啊！你说你都能控制两个view了，你难道不能控制view的frame，不能控制view的大小，不能控制两个view怎么叠加怎么摆放？<strong>不要被VC传统的用法束缚，在这里，view才是你的主角。</strong></p>
+</li>
+</ol>
+<h3 id="轻总结"><a href="#轻总结" class="headerlink" title="轻总结"></a>轻总结</h3><p>新手往往被苹果指定的用法所束缚（如VC和view的关系），那是因为没有清楚理解苹果提供的“用法”的本质。诚然，苹果的用法已经足够优秀，你不必考虑部分细节也能进行使用，但是，理解“用法”的本质，才能让你走的更远。</p>
+<p>   ​</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="//schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2017/01/07/二级指针与ARC不为人知的特性/" itemprop="url">
                   二级指针与ARC不为人知的特性
                 </a>
@@ -1057,7 +1209,7 @@ typedef signed char BOOL;
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">5</span>
+              <span class="site-state-item-count">6</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
