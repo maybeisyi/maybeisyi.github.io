@@ -286,20 +286,18 @@
             <h3 id="标题是简析，不是解析"><a href="#标题是简析，不是解析" class="headerlink" title="标题是简析，不是解析"></a>标题是简析，不是解析</h3><blockquote>
 <p>所以我只谈思路，不谈详细实现</p>
 </blockquote>
-<p><strong>DYLeftSlipManager是一个侧滑菜单组件，它与别的侧滑菜单不同的是，它将“侧面菜单”以及“主页面”之间完全解耦和。</strong></p>
+<p><strong>DYLeftSlipManager是一个侧滑菜单组件，它与别的侧滑菜单不同的是，它将“侧面菜单”以及“主页面”之间完全解耦合。</strong></p>
 <p><a href="https://github.com/maybeisyi/DYLeftSlipManager" target="_blank" rel="external">GitHub地址：https://github.com/maybeisyi/DYLeftSlipManager</a></p>
-<p>之前在各大论坛上看到的侧滑菜单，各种仿QQ侧滑菜单，仿XX侧滑等等，均是在同一个ViewController中，添加一个侧面的视图，然后通过手势balabala的。能用吗？当然能用，只要你不嫌你的VC够臃肿。</p>
+<p>之前在各大论坛上看到的侧滑菜单，各种仿QQ侧滑菜单，仿XX侧滑等等，均是在同一个ViewController（以下用VC代替）中，添加一个侧面的视图，然后通过手势balabala的。能用吗？当然能用，只要你不嫌你的VC够臃肿。</p>
 <p>侧滑菜单页面的内容往往和主页面的内容关联度不大（部分应用中也有见到是有关联的），一般来说都是可以独立为一块业务的（有关联的基本也能抽象为一块独立业务）。在这种场景下，你认为两个业务同写在一个VC里真的好吗？</p>
 <p>所以就有了这个轮子。</p>
 <h3 id="轮子思路"><a href="#轮子思路" class="headerlink" title="轮子思路"></a>轮子思路</h3><ol>
 <li><p>如何抽象出这部分的业务？</p>
 <p>业务的抽象还是需要靠类（甚至于模块）来进行划分。</p>
-<p>​</p>
 </li>
 <li><p>如何分离出这部分页面？</p>
 <p>页面的分离，要么是自定义view，要么是另开一个VC。</p>
-<p>自定义view可以实现页面的分离，但是业务逻辑很难全都塞入view中进行管理，因为业务，那是VC或者单独的业务类进行管理。<strong>所以另开一个VC是目前较佳的选择。</strong></p>
-<p>​</p>
+<p>自定义view可以实现页面的分离，但是业务逻辑很难全都塞入view中进行管理，因为业务一般是VC或者单独的业务类来进行管理。<strong>所以另开一个VC是目前较佳的选择。</strong></p>
 </li>
 <li><p>如何在当前侧滑的场景下另开一个VC？</p>
 <p>首先不要将ViewController和view在脑海中混在一起，不要将VC当做view。VC是一个抽象的内容，只是一堆代码，你是看不见VC的，<strong>App上你看见的才是真真切切的view</strong>，只不过VC通常作为一个“完整页面（一个手机屏幕大小）”的“容器”存在而已。所谓“容器”，你理解成view是VC的一个属性即可。</p>
@@ -311,15 +309,15 @@
 <p>到这里应该没问题。</p>
 <p>然后我们在默认的ViewController.m中，addSubview，把狗的view显示出来：</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">@implementation ViewController</div><div class="line"></div><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    [super viewDidLoad];</div><div class="line">    </div><div class="line">    MyDog *dog = [[MyDog alloc] init];</div><div class="line">    [self.view addSubview:dog.view];</div><div class="line">&#125;</div><div class="line"></div><div class="line">@end</div></pre></td></tr></table></figure>
-<p>没问题把，狗的view确实显示出来了吧？那么，狗有个view，新建一个VC也有个view，我们是不是可以把dog换成VC呢？</p>
+<p>没问题吧，狗的view确实显示出来了吧？那么，狗有个view，新建一个VC也有个view，我们是不是可以把dog换成VC呢？</p>
 <figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">- (void)viewDidLoad &#123;</div><div class="line">    [super viewDidLoad];</div><div class="line">    </div><div class="line">    UIViewController *VC = [[UIViewController alloc] init];</div><div class="line">    VC.view.frame = CGRectMake(100, 100, 100, 100);</div><div class="line">    VC.view.backgroundColor = [UIColor redColor];</div><div class="line">    [self.view addSubview:VC.view];</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>OK吧？现在你想清楚VC和view的关系了吧？</p>
-<p>你没想清楚MyDog和VC的关系？这么说把，Dog无法知道view在系统中何时willAppear、DidAppear等节点的事情，所以无法精确的管理view的生命周期，但是VC可以，因为VC是苹果提供的类，它的名字是“<strong>UIViewController</strong>”，也就是“view的控制器、管理器”，所以VC能管理view的生命周期，所以我们在VC里写业务会更方便开发！</p>
+<p>你没想清楚MyDog和VC的关系？这么说把，Dog无法知道view在系统中何时willAppear、DidAppear等节点，所以无法精确的管理view的生命周期，但是VC可以，因为VC是苹果提供的类，它的名字是“<strong>UIViewController</strong>”，也就是“view的控制器、管理器”，所以VC能管理view的生命周期，所以我们在VC里写业务会更方便开发！</p>
 <p>说了那么多，我就想说明一个观点：</p>
 <blockquote>
 <p>在一个VC里（主页面），要另开一个VC（侧滑菜单页面），那就创建一个嘛，然后把侧滑页面的view <code>addSubview</code>到主页面里不就完事了？</p>
 </blockquote>
-<p>好了，业务与页面都被抽象到另一个VC了（当然了你要自定义一个侧滑菜单VC）。那么主页面的VC和侧滑菜单页面的VC已经逻辑分离，耦合松散了。只不过，主页面还必须知道有“侧滑页面”这个VC的存在。</p>
+<p>好了，业务与页面都被抽象到另一个VC了（当然了你要自定义一个侧滑菜单VC）。那么主页面的VC和侧滑菜单页面的VC已经逻辑分离，耦合松散了。只不过，主页面此时还必须知道有“侧滑页面”这个VC的存在。</p>
 </li>
 <li><p>进一步解耦合</p>
 <p>在第3点中，我们已经初步解耦合了，但是是不是有更优雅的方式？</p>
@@ -330,7 +328,7 @@
 </li>
 <li><p>侧滑菜单如何解耦合—控制器转场</p>
 <p>这里不细说控制器转场如何实现，想学习的google一堆。这里想说的是转场究竟是个什么东西。</p>
-<p><strong>控制器转场就是通过一系列动画，操作两个VC的view进行切换显示。切换显示的时候，会有两个VC的父view：containerView，然后两个VC的view在上面add、remove，再加点动画，就可以了</strong></p>
+<p><strong>控制器转场就是通过一系列动画，操作两个VC的view进行切换显示。切换显示的时候，会有两个VC的父view：containerView，然后两个VC的view在上面add、remove，再加点动画，就可以了。</strong></p>
 <p>无论是push还是present，都是转场，就是操作view的<code>addSubview</code>或者<code>removeFromSuperview</code>。</p>
 <p>一是给两个VC解耦，二是做动画，用户体验更友好。</p>
 <blockquote>
