@@ -58,7 +58,7 @@ typedef signed char BOOL;
 </code></pre>
 <p>这是stdbool.h中的bool的定义（C99标准）。<br>bool其实还是个宏（又一次给宏长脸）。真实类型为_Bool。_Bool其实是占1个字节的一种类型，1为真，0为假。定义中的true与false分别等于1和0也说明了这一点。<br>而如果有别的数值转换为bool类型（_Bool），则非0的所有数值均转化为1，正是这点，让bool类型在128时也能判断为真。  </p>
 <h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>为了看清bool与BOOL，挖了不少C中的头文件，宏真的是个好东西，真的很长脸~<br>可能这些知识在你平时开发中，遇上10000个bug才会派上用场一次。但是越是了解这些细微的、基础的知识，对程序本质的理解也就越清晰。</p>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1c824ub0002xqvs2zjfbow3" data-title="仔细看看你的BOOL" data-url="http://yoursite.com/2016/12/29/仔细看看BOOL/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1c8ij890004zyvs2xbc7bdw" data-title="仔细看看你的BOOL" data-url="http://yoursite.com/2016/12/29/仔细看看BOOL/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
