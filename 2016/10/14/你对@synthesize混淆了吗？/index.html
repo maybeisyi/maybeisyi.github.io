@@ -16,7 +16,7 @@
 <li>1<br><font color="red">@implementation中声明的成员属性 <code>NSObject *boy</code> 和@property声明的boy是否是同一个对象？还存不存在_boy这个变量？</font><br>不是，@synthesize已经指定了girl作为setter/getter方法里使用的变量，不再自动生成_boy这个变量了。</li>
 <li>2<br><font color="red">@synthesize boy = girl; 到底是把boy变成了girl，还是把girl变成了boy？</font><br>没有变来变去，因为压根不存在_boy了。是把”boy”的set方法<code>- (void)setBoy:(NSObject *)boy</code> 的实现改成了girl = boy，即把_boy 用 girl替代。已经不存在_boy这个成员变量了。</li>
 </ul>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1c8ij8b0005zyvs0lsayicf" data-title="你对@synthesize混淆了吗？" data-url="http://yoursite.com/2016/10/14/你对@synthesize混淆了吗？/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1dnc2ji0006ivvsvyta4o1r" data-title="你对@synthesize混淆了吗？" data-url="http://yoursite.com/2016/10/14/你对@synthesize混淆了吗？/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
