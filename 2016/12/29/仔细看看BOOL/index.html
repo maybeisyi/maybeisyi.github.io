@@ -1,64 +1,39 @@
-<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description" content="你到底在说什么"><meta name="keywords" content="iOS, daiyi"><title>仔细看看你的BOOL - 戴奕的个人博客</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/maybeisyi"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">仔细看看你的BOOL</h1><ul class="meta"><li><i class="icon icon-author"></i>戴奕</li><li><i class="icon icon-clock"></i>3 Minutes</li><li><i class="icon icon-calendar"></i>December 29, 2016</li></ul></div></div><div class="article-content" style="max-width:800px"><h3 id="为啥要看这玩意"><a href="#为啥要看这玩意" class="headerlink" title="为啥要看这玩意"></a>为啥要看这玩意</h3><p>越是每天在用的东西你越可能忽略它，所以当你碰到一些莫名其妙的bug的时候，你可能真的是莫名其妙了。所以偶尔回头看看还是很有必要的~<br><a id="more"></a></p>
-<h3 id="BOOL的定义"><a href="#BOOL的定义" class="headerlink" title="BOOL的定义"></a>BOOL的定义</h3><pre><code class="iOS">/// Type to represent a boolean value.
-#if (TARGET_OS_IPHONE &amp;&amp; __LP64__)  ||  TARGET_OS_WATCH
-#define OBJC_BOOL_IS_BOOL 1
-typedef bool BOOL;
-#else
-#define OBJC_BOOL_IS_CHAR 1
-typedef signed char BOOL; 
-// BOOL is explicitly signed so @encode(BOOL) == &quot;c&quot; rather than &quot;C&quot; 
-// even if -funsigned-char is used.
-#endif
-</code></pre>
-<p>伪代码解释下：  </p>
-<p>if (处于64位iPhone 或者 iWatch) {<br>　　BOOL就是bool  （非0即真）<br>} else {<br>　　BOOL就是signed char  （1个字节，取低8位。-128 ~ 127）<br>}  </p>
-<p>这里的else，最常见的就是32位架构的iPhone，比如iPhone5c/5/4s/4等。<br>定义里可以看出，BOOL你原来是个宏啊，亏你还是OC中的基本数据类型~ 真是给宏长脸了啊。  </p>
-<hr>
-<p>这里就引申出一个可能存在的问题：</p>
-<pre><code class="iOS">- (void)doSomeThingWithA:(NSInteger)a {
-    NSInteger b = 28;
-    if (a + b) {
-        // 业务代码
-    }
-}
-</code></pre>
-<p>乍看之下，这段代码只要 <code>a != -28</code>，都是能够执行业务代码部分。在64位iPhone和iWatch机器里确实是如此，因为定义的BOOL就是bool，就是非0即真，你用负数也是真。<br>但是在32位机器里呢？如果a传入100，<code>a + b == 128</code>，二进制是  1000 0001 0000 0000 0000 0000 0000 0000（因为32位里NSInteger是int【话说最新的头文件定义里多了个<code>NS_BUILD_32_LIKE_64</code>，估计编译器可以设置32位的机器以64位来进行编译，这个这里暂时不展开讨论】，占用4个字节，每个字节8位嘛）。该数会强转为sign char，：取低8位 0000 0000 来判断。if中判定为0，则为假，不再执行业务代码。</p>
-<h3 id="YES-NO的定义"><a href="#YES-NO的定义" class="headerlink" title="YES / NO的定义"></a>YES / NO的定义</h3><p>说到了BOOL，肯定要说说YES / NO。<br>老板，上代码：</p>
-<pre><code class="iOS">#if __has_feature(objc_bool)
-#define YES __objc_yes
-#define NO  __objc_no
-#else
-#define YES ((BOOL)1)
-#define NO  ((BOOL)0)
-#endif
-</code></pre>
-<p>这两玩意也是宏。这里定义了YES / NO在不同条件下的真实类型。上述的<code>objc_bool</code>暂时还没有找到具体在哪定义，个人猜测意思应该是BOOL为bool的时候。否则YES / NO 即为sign char中的1和0。  </p>
-<hr>
-<p>所以这里又来了个老生常谈的问题：不要拿数值和 YES / NO 的比较作为条件判断，如<code>if (a + b == YES)</code>。</p>
-<h3 id="扩展内容"><a href="#扩展内容" class="headerlink" title="扩展内容"></a>扩展内容</h3><p>我们来看看C99中的bool定义（刨根就要刨的深一点）：</p>
-<pre><code class="iOS">#ifndef __STDBOOL_H
-#define __STDBOOL_H
-
-/* Don&apos;t define bool, true, and false in C++, except as a GNU extension. */
-#ifndef __cplusplus
-#define bool _Bool
-#define true 1
-#define false 0
-#elif defined(__GNUC__) &amp;&amp; !defined(__STRICT_ANSI__)
-/* Define _Bool, bool, false, true as a GNU extension. */
-#define _Bool bool
-#define bool  bool
-#define false false
-#define true  true
-#endif
-
-#define __bool_true_false_are_defined 1
-
-#endif /* __STDBOOL_H */
-</code></pre>
-<p>这是stdbool.h中的bool的定义（C99标准）。<br>bool其实还是个宏（又一次给宏长脸）。真实类型为_Bool。_Bool其实是占1个字节的一种类型，1为真，0为假。定义中的true与false分别等于1和0也说明了这一点。<br>而如果有别的数值转换为bool类型（_Bool），则非0的所有数值均转化为1，正是这点，让bool类型在128时也能判断为真。  </p>
-<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>为了看清bool与BOOL，挖了不少C中的头文件，宏真的是个好东西，真的很长脸~<br>可能这些知识在你平时开发中，遇上10000个bug才会派上用场一次。但是越是了解这些细微的、基础的知识，对程序本质的理解也就越清晰。</p>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1dnc2jd0004ivvsjz1ef1hx" data-title="仔细看看你的BOOL" data-url="http://yoursite.com/2016/12/29/仔细看看BOOL/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description" content="你到底在说什么"><meta name="keywords" content="iOS, daiyi"><title>仔细看看你的BOOL - 戴奕的个人博客</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/maybeisyi"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">仔细看看你的BOOL</h1><ul class="meta"><li><i class="icon icon-author"></i>戴奕</li><li><i class="icon icon-clock"></i>10 Minutes</li><li><i class="icon icon-calendar"></i>December 29, 2016</li></ul></div></div><div class="article-content" style="max-width:800px"><h3 id="为啥要看这玩意"><a href="#为啥要看这玩意" class="headerlink" title="为啥要看这玩意"></a>为啥要看这玩意</h3><p>你每天都在用BOOL吧？那我就来问一道题：<strong>请问BOOL是非0即真吗？</strong></p>
+<p>如果不是百分百确定的，请往下看。</p>
+<a id="more"></a>
+<h3 id="BOOL的定义（Xcode7-3版本，位于usr-include-objc-objc中）"><a href="#BOOL的定义（Xcode7-3版本，位于usr-include-objc-objc中）" class="headerlink" title="BOOL的定义（Xcode7.3版本，位于usr/include/objc/objc中）"></a>BOOL的定义（Xcode7.3版本，位于usr/include/objc/objc中）</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">/// 位于&lt;objc/objc&gt;头文件中</div><div class="line"></div><div class="line">/// Type to represent a boolean value.</div><div class="line">#if (TARGET_OS_IPHONE &amp;&amp; __LP64__)  ||  TARGET_OS_WATCH</div><div class="line">#define OBJC_BOOL_IS_BOOL 1</div><div class="line">typedef bool BOOL;</div><div class="line">#else</div><div class="line">#define OBJC_BOOL_IS_CHAR 1</div><div class="line">typedef signed char BOOL; </div><div class="line">// BOOL is explicitly signed so @encode(BOOL) == &quot;c&quot; rather than &quot;C&quot; </div><div class="line">// even if -funsigned-char is used.</div><div class="line">#endif</div></pre></td></tr></table></figure>
+<p>这是BOOL在SDK中的定义。</p>
+<h4 id="1-让我们展开宏定义来看看："><a href="#1-让我们展开宏定义来看看：" class="headerlink" title="1. 让我们展开宏定义来看看："></a>1. 让我们展开宏定义来看看：</h4><p><code>TARGET_OS_IPHONE</code>与<code>TARGET_OS_WATCH</code>的定义是在：</p>
+<p><img src="/image/BOOL配图/TARGET_OS_IPHONE_图1.png" alt="TARGET_OS_IPHONE定义"></p>
+<p>请注意一点，iOS 9.3只是其中的一个SDK，代表的是真机iOS 9.3版本的SDK，在Xcode中有很多的SDK，如：</p>
+<p><img src="/image/BOOL配图/SDK种类_图2.png" alt="SDK种类"></p>
+<p>查看不同的SDK，你会发现<code>TARGET_OS_IPHONE</code>与<code>TARGET_OS_WATCH</code>所定义的值是不同的。如iOS 9.3中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">#define TARGET_OS_MAC               1</div><div class="line">#define TARGET_OS_WIN32             0</div><div class="line">#define TARGET_OS_UNIX              0</div><div class="line">#define TARGET_OS_IPHONE            1 </div><div class="line">#define TARGET_OS_IOS               1</div><div class="line">#define TARGET_OS_WATCH             0</div><div class="line">#define TARGET_OS_TV                0</div><div class="line">#define TARGET_OS_SIMULATOR         0</div><div class="line">#define TARGET_OS_EMBEDDED          1</div></pre></td></tr></table></figure>
+<p>而在OS X 10.11中：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">#define TARGET_OS_MAC               1</div><div class="line">#define TARGET_OS_WIN32             0</div><div class="line">#define TARGET_OS_UNIX              0</div><div class="line">#define TARGET_OS_IPHONE            0 </div><div class="line">#define TARGET_OS_IOS               0</div><div class="line">#define TARGET_OS_WATCH             0</div><div class="line">#define TARGET_OS_TV                0</div><div class="line">#define TARGET_OS_SIMULATOR         0</div><div class="line">#define TARGET_OS_EMBEDDED          0</div></pre></td></tr></table></figure>
+<p>这两个宏定义代表的含义同时也说明了在不同的平台/环境下，部分判断并不是靠“机器”自动进行的，而是靠人为判断并定义的，所以程序并没有那么神奇，它并不能够自动区分iPhone还是iWatch。</p>
+<p><code>__LP64__</code>则是由<strong>预处理器</strong>定义的宏，代表当前操作系统是64位。该宏在头文件中无法找到的，但是我们还是有方法可以查看的：</p>
+<p>a. 可以在终端中输入<code>cpp -dM /dev/null</code>进行查看（当然常规手段只能在Mac上运行该指令）：</p>
+<p><img src="/image/BOOL配图/定义1_图3.png" alt="__LP64__定义1"></p>
+<p>b. 在代码中对<code>__LP64__</code>进行 if 判断，如：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">#if __LP64__</div><div class="line">    #define kNum 64</div><div class="line">#else</div><div class="line">    #define kNum 32</div><div class="line">#endif</div><div class="line">    NSLog(@&quot;kNum: %d&quot;,kNum);</div></pre></td></tr></table></figure>
+<p>分别选择iPhone5/5c/4s/4等<strong>真机</strong>和iPhone6/6s等进行运行查看结果（iPhone模拟器也能得出正确值，但非“真实值”）。</p>
+<p>c. 通过Xcode助理器的预编译功能查看<code>__LP64__</code>的预编译结果：</p>
+<p><img src="/image/BOOL配图/定义3_图4.png" alt="__LP64__定义3"></p>
+<h4 id="2-伪代码解释："><a href="#2-伪代码解释：" class="headerlink" title="2. 伪代码解释："></a>2. 伪代码解释：</h4><p>if (处于64位iPhone 或者 iWatch) {<br>　　BOOL就是bool  （非0即真）<br>} else {<br>　　BOOL就是signed char  （1个字节。-128 ~ 127）<br>}  </p>
+<p>这里的else，最常见的就是32位CPU的iPhone，如iPhone5c/5/4s/4等。<br>定义里可以看出，BOOL其实是个宏，那么知道了BOOL背后的数据类型，出了问题就有能力去分析问题。</p>
+<h4 id="3-这里就引申出一个可能存在的问题："><a href="#3-这里就引申出一个可能存在的问题：" class="headerlink" title="3. 这里就引申出一个可能存在的问题："></a>3. 这里就引申出一个可能存在的问题：</h4><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">- (void)doSomeThingWithA:(NSInteger)a &#123;</div><div class="line">    NSInteger b = 200;</div><div class="line">    if (a + b) &#123;</div><div class="line">        // 业务代码</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>乍看之下，这段代码只要 <code>a != -200</code>，都是能够执行业务代码部分。在64位iPhone和iWatch机器里确实是如此，因为定义的BOOL就是bool，就是非0即真，你用负数也是真。<br>但是在32位机器里呢？如果a传入56，<code>a + b == 256</code>，二进制是  0000 0000 0000 0000 0000 0001 0000 0000（因为32位里NSInteger是int，占用4个字节，每个字节8位）。该数值在if时会强转为BOOL（也就是sign char）进行判定：取低8位 0000 0000 来判断，而0000 0000就是0。if中判定为0，则为假，不再执行业务代码。</p>
+<h3 id="YES-NO的定义"><a href="#YES-NO的定义" class="headerlink" title="YES / NO的定义"></a>YES / NO的定义</h3><p>说到了BOOL，肯定要说说YES / NO。  </p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">#if __has_feature(objc_bool)</div><div class="line">#define YES __objc_yes</div><div class="line">#define NO  __objc_no</div><div class="line">#else</div><div class="line">#define YES ((BOOL)1)</div><div class="line">#define NO  ((BOOL)0)</div><div class="line">#endif</div></pre></td></tr></table></figure>
+<p>这两玩意也是宏。这里定义了YES / NO在不同条件下的真实类型。</p>
+<p><code>__has_feature</code>这个宏是clang提供的一个宏，用来指定在当前语言下是否支持某个“特征”。上述的<code>objc_bool</code>这个特征暂时还没有找到具体的定义，个人猜测苹果是想在OC中加入一种OC特有的逻辑判断数据类型<code>objc_bool</code>以及它对应的true(<code>__objc_yes</code>)和false(<code>__objc_no</code>)，但是当前OC中暂时还没有定义，所以YES与NO即为1与0。</p>
+<p>所以这里又来了个小白问题：不要拿数值和 YES / NO 的比较作为条件判断，如<code>if (a + b == YES)</code>。</p>
+<h3 id="扩展内容"><a href="#扩展内容" class="headerlink" title="扩展内容"></a>扩展内容</h3><p>我们来看看C99中的bool定义：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">#ifndef __STDBOOL_H</div><div class="line">#define __STDBOOL_H</div><div class="line"></div><div class="line">/* Don&apos;t define bool, true, and false in C++, except as a GNU extension. */</div><div class="line">#ifndef __cplusplus</div><div class="line">#define bool _Bool</div><div class="line">#define true 1</div><div class="line">#define false 0</div><div class="line">#elif defined(__GNUC__) &amp;&amp; !defined(__STRICT_ANSI__)</div><div class="line">/* Define _Bool, bool, false, true as a GNU extension. */</div><div class="line">#define _Bool bool</div><div class="line">#define bool  bool</div><div class="line">#define false false</div><div class="line">#define true  true</div><div class="line">#endif</div><div class="line"></div><div class="line">#define __bool_true_false_are_defined 1</div><div class="line"></div><div class="line">#endif /* __STDBOOL_H */</div></pre></td></tr></table></figure>
+<p>这是stdbool.h中的bool的定义（C99标准）。<br>bool其实还是个宏，其真实类型为<code>_Bool</code>。<code>_Bool</code>在C99中是作为C语言原生的布尔类型的，1为真，0为假，具体占用内存大小还是由编译器决定。定义中的true与false分别为1和0。  </p>
+<h3 id="总结"><a href="#总结" class="headerlink" title="总结"></a>总结</h3><p>宏真的是个好东西~</p>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1j27oz30005k0vsorzvmrzb" data-title="仔细看看你的BOOL" data-url="http://yoursite.com/2016/12/29/仔细看看BOOL/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
