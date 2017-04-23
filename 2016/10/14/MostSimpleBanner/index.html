@@ -18,7 +18,7 @@
 <p>一共50行代码，中间还有一大串注释，就这么easy。  </p>
 <p><code>scrollDirection</code>这个变量是性能优化用的。如果没有这个变量，只能单纯依靠contentOffset.x 与 SCREEN_WIDTH的关系判定是左滑还是右滑了。</p>
 <p>那么在scrollViewDidScroll:里面就会重复执行很多遍setFrame 和 setImage 方法，对性能是有损耗的。但是利用了这个枚举变量，只需要执行两个枚举变量的判断（整形的判断），不涉及对象操作，也就能将性能损耗降到最低了。</p>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1nm2a9j00001kvs5f573bcf" data-title="最简单的2个imageView无限轮播器" data-url="http://yoursite.com/2016/10/14/MostSimpleBanner/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">5</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj1uunv2y0000zmvscriw1is4" data-title="最简单的2个imageView无限轮播器" data-url="http://yoursite.com/2016/10/14/MostSimpleBanner/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
