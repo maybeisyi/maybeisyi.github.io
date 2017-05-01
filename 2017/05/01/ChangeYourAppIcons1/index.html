@@ -1,0 +1,101 @@
+<!DOCTYPE html><html lang="zh-cn"><head><meta charset="utf-8"><meta http-equiv="X-UA-Compatible" content="IE=Edge"><meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0,user-scalable=no"><meta name="format-detection" content="telephone=no"><meta name="format-detection" content="email=no"><meta name="description" content="你到底在说什么"><meta name="keywords" content="iOS, daiyi"><title>iOS动态更换App图标（一）：基础使用 - 戴奕的个人博客</title><link rel="stylesheet" href="/css/main_style.min.css"><link rel="icon" href="/favicon.ico"></head><body><input id="navi" type="checkbox"><ul class="main-navication"><li><a href="/"><span>Home</span></a></li><li><a href="https://github.com/maybeisyi"><span>Github</span></a></li></ul><div class="wrapper" id="wrap"><div class="post-header"><label class="navi-button light" for="navi">MENU</label><img class="background" src="http://callfiles.ueibo.com/hexo-theme-laughing/post_background.jpg"><div class="post-title"><h1 class="title">iOS动态更换App图标（一）：基础使用</h1><ul class="meta"><li><i class="icon icon-author"></i>戴奕</li><li><i class="icon icon-clock"></i>12 Minutes</li><li><i class="icon icon-calendar"></i>May 1, 2017</li></ul></div></div><div class="article-content" style="max-width:800px"><p>动态更换App图标这件事，在用户里总是存在需求的：有些用户喜欢“美化”自己的手机。至于用户们喜欢美化到什么程度，这得看个人需求。有的用户想定制个性的App图标，那么各大iPhone论坛里都有方法可以不越狱更改App图标；有的用户想让App图标“动”起来（如系统应用时钟），那么不越个狱还真不好办。</p>
+<p>不过今天我们想谈谈苹果官方对于动态更换App图标的支持。</p>
+<h2 id="本系列文章"><a href="#本系列文章" class="headerlink" title="本系列文章"></a>本系列文章</h2><ol>
+<li><a href="http://daiyi.pro/2017/05/01/ChangeYourAppIcons1/" target="_blank" rel="external">iOS动态更换App图标（一）：基础使用</a></li>
+<li><a href="http://daiyi.pro/2017/05/01/ChangeYourAppIcons2/" target="_blank" rel="external">iOS动态更换App图标（二）：无弹框更换App图标</a></li>
+<li>iOS动态更换App图标（三）：动态下载App图标进行更换</li>
+</ol>
+<h2 id="Demo演示"><a href="#Demo演示" class="headerlink" title="Demo演示"></a>Demo演示</h2><p><img src="/image/ChangeYourAppIcons1/DynamicAppIconDemo1.gif" alt="DynamicAppIconDemo1"></p>
+<p>Demo地址：<a href="https://github.com/maybeisyi/ChangeAppIconDemo" target="_blank" rel="external">https://github.com/maybeisyi/ChangeAppIconDemo</a></p>
+<p>本篇文章对应工程为：<strong>DynamicAppIcon（一）</strong></p>
+<p>Demo中可以看到，在不重新安装App的情况下，可以实现更新App的图标。但是会弹出一个提示，告知用户当前图标已更换，当然下一篇文章将会突破这个“限制”。</p>
+<h3 id="该功能应用的场景"><a href="#该功能应用的场景" class="headerlink" title="该功能应用的场景"></a>该功能应用的场景</h3><p>1、白天/夜间模式切换，在切换App主色调同时切换App图标。</p>
+<p>2、各类皮肤主题（淘宝就可换肤），附带App图标一块更换。</p>
+<p>3、利用App图标表达某种特定功能，如Demo中的，提示当前天气。</p>
+<p>4、图标促销提示，如淘宝京东特定节日：11.11、6.18，提前更换App图标。</p>
+<p>当然该功能（API）当前只支持iOS10.3以上的系统，所以只能当做一项附加功能来进行使用。下面将详细讲解下如何使用代码来实现此功能。</p>
+<h2 id="API与文档"><a href="#API与文档" class="headerlink" title="API与文档"></a><a href="https://developer.apple.com/reference/uikit/uiapplication/2806818-setalternateiconname?language=objc" target="_blank" rel="external">API与文档</a></h2><h3 id="API方法"><a href="#API方法" class="headerlink" title="API方法"></a>API方法</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">@interface UIApplication (UIAlternateApplicationIcons)</div><div class="line">// 如果为NO，表示当前进程不支持替换图标</div><div class="line">@property (readonly, nonatomic) BOOL supportsAlternateIcons NS_EXTENSION_UNAVAILABLE(&quot;Extensions may not have alternate icons&quot;) API_AVAILABLE(ios(10.3), tvos(10.2));</div><div class="line"></div><div class="line">// 传入nil代表使用主图标. 完成后的操作将会在任意的后台队列中异步执行; 如果需要更改UI，请确保在主队列中执行.</div><div class="line">- (void)setAlternateIconName:(nullable NSString *)alternateIconName completionHandler:(nullable void (^)(NSError *_Nullable error))completionHandler NS_EXTENSION_UNAVAILABLE(&quot;Extensions may not have alternate icons&quot;) API_AVAILABLE(ios(10.3), tvos(10.2));</div><div class="line"></div><div class="line">// 如果alternateIconName为nil，则代表当前使用的是主图标.</div><div class="line">@property (nullable, readonly, nonatomic) NSString *alternateIconName NS_EXTENSION_UNAVAILABLE(&quot;Extensions may not have alternate icons&quot;) API_AVAILABLE(ios(10.3), tvos(10.2));</div><div class="line">@end</div></pre></td></tr></table></figure>
+<p>总共3个方法，简洁明了，不过但看这3个API，我们并不清楚<code>alternateIconName</code>是如何与app图标挂钩的，所以我们需要进一步翻看文档。</p>
+<h3 id="文档"><a href="#文档" class="headerlink" title="文档"></a>文档</h3><p>shift+command+0打开文档，依次查看3个API，翻译如下：</p>
+<ol>
+<li><p><strong>supportsAlternateIcons</strong></p>
+<p><img src="/image/ChangeYourAppIcons1/supportsAlternateIcons.png" alt="supportsAlternateIcons Document"></p>
+<p>（翻译）只有系统允许改变你的app图标时该值才为YES。你需要在Info.plist文件中的CFBundleIcons这个键内声明可更换的app图标。</p>
+<p>​</p>
+</li>
+<li><p><strong>alternateIconName</strong></p>
+<p><img src="/image/ChangeYourAppIcons1/alternateIconName.png" alt="alternateIconName Document"></p>
+<p>（翻译）当系统展示的是你更换后的app图标时，该值即为图标名字（Info.plist中定义的图标名字）。如果展示的是主图标时，这个值为nil。</p>
+<p>​</p>
+</li>
+<li><p><strong>setAlternateIconName:completionHandler:</strong></p>
+<p><img src="/image/ChangeYourAppIcons1/setAlternateIconName.png" alt="setAlternateIconName Document"></p>
+<p>（翻译）alertnateIconName参数：该参数为需要更换的app图标名字，是在你的Info.plist中的CFBundleAlertnateIcons键里定义的。如果你想显示的是用CFBundlePrimaryIcon键所定义的主图标的话，就传入nil。CFBundleAlertnateIcons与CFBundlePrimaryIcon键都是在CFBundleIcons里面定义的。</p>
+<p>（翻译）completionHandler参数：该参数用来处理（更换）结果。当系统尝试更改app的图标后，会将结果数据通过该参数传入并执行（该执行过程是在UIKit所提供的队列执行，并非主队列）。该执行过程会携带一个参数：error。如果更换app图标成功，那么这个参数就是nil。如果更换过程中发生了错误，那么该对象会指明错误信息，并且app的图标保持不变。</p>
+<p><img src="/image/ChangeYourAppIcons1/setAlternateIconName2.png" alt="setAlternateIconName2 Document"></p>
+<p>（翻译）使用该方法改变app图标为主图标或者可更换的图标。只有在<code>supportsAlternateIcons</code>的返回值为YES时才能更换。</p>
+<p>（翻译）你必须在Info.plist文件的CFBundleIcons键里面声明可以更换的app图标（主图标和可更换图标）。如果需要获取关于可更换图标的配置信息，请查阅 <a href="https://developer.apple.com/library/etc/redirect/xcode/content/1189/documentation/General/Reference/InfoPlistKeyReference/Introduction/Introduction.html#//apple_ref/doc/uid/TP40009247" target="_blank" rel="external">Information Property List Key Reference</a> 里面有关CFBundleIcons的描述。</p>
+<p>​</p>
+</li>
+</ol>
+<p>文档中反复提到了Info.plist文件与CFBundleIcons，这是Xcode6之前是用来配置App图标的老方法，后来有了更完备的Assets.scassets，配置App图标更简单与完善了。不过如今该方法再次被搬上台面，在苹果内部一定也是历经多次“撕逼”后的结果，为何苹果急于在10.3而不是11推出该API？为何苹果不使用Assets.scassets配置可变更的App图标？我们不得而知，不过相信苹果后期会对该配置方法做优化的。</p>
+<h2 id="可变更App图标的配置方法"><a href="#可变更App图标的配置方法" class="headerlink" title="可变更App图标的配置方法"></a>可变更App图标的配置方法</h2><h3 id="官方配置文档"><a href="#官方配置文档" class="headerlink" title="官方配置文档"></a>官方配置文档</h3><p><img src="/image/ChangeYourAppIcons1/CFBundleAlternateIcons1.png" alt="CFBundleAlternateIcons1 Document"></p>
+<p>该配置文档的内容较多，我们挑重点罗列下（忽略tvOS部分，下同）：</p>
+<ul>
+<li><p>Info.plist是个<strong>字典</strong>，假设为<code>NSDictionary *infoPlist</code>。</p>
+</li>
+<li><p>CFBundleIcons是Info.plist字典里的一个<strong>键</strong><code>@&quot;CFBundleIcons&quot;</code>。</p>
+</li>
+<li>CFBundleIcons对应的value是个<strong>字典</strong>。</li>
+<li>CFBundleIcons里面能够包含的键有：CFBundlePrimaryIcon、CFBundleAlternateIcons、UINewsstandIcon。</li>
+</ul>
+<p>让我们用代码展示下这个绕口的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">NSDictionary *infoPlist;</div><div class="line">infoPlist = @&#123;</div><div class="line">               @&quot;CFBundleIcons&quot; : @&#123;</div><div class="line">                                     @&quot;CFBundlePrimaryIcon&quot; : xxx,</div><div class="line">                                     @&quot;CFBundleAlternateIcons&quot; : xxx,</div><div class="line">                                     @&quot;UINewsstandIcon&quot; : xxx</div><div class="line">                                   &#125;</div><div class="line">             &#125;;</div></pre></td></tr></table></figure>
+<p><img src="/image/ChangeYourAppIcons1/CFBundleAlternateIcons2.png" alt="CFBundleAlternateIcons2 Document"></p>
+<p>这是关于CFBundleAlternateIcons的配置文档：</p>
+<p>其中有一句话，不仔细思考很难明白：</p>
+<blockquote>
+<p>In iOS, the value of the key is a dictionary. The key for each dictionary entry is the name of the alternate icon</p>
+</blockquote>
+<p>翻译：</p>
+<blockquote>
+<p> 该键对应的值是字典，每个字典条目的键都是备用图标的名称。</p>
+</blockquote>
+<p>从这句话中无法很快理清CFBundleAlternateIcons下层的数据结构。实际上这句话表达的意思是：</p>
+<blockquote>
+<p>该键对应的值是字典，这个字典里的每一个键对应的又是一个个字典，而这些键都是备用图标的名称。</p>
+</blockquote>
+<p>让我们把剩余的重点罗列下：</p>
+<ul>
+<li>CFBundleAlternateIcons所对应的value是个<strong>字典</strong>（iOS中），假设为<code>NSDictionary * alertnateIconsDic</code>。</li>
+<li>alertnateIconsDic的键，都是<strong>备用图标的名字</strong>，假设为<code>@&quot;newAppIcon&quot;</code>和<code>@&quot;newAppIcon2&quot;</code>。</li>
+<li><code>@&quot;newAppIcon&quot;</code>的value是个包含CFBundleIconFiles和UIPrerenderedIcon这两个键的<strong>字典</strong>。</li>
+<li>CFBundleIconFiles的value是<strong>字符串或者数组（数组内容也为字符串）</strong>。字符串的内容为各尺寸备用图标的名字。</li>
+<li>UIPrerenderedIcon的value是BOOL值。这个键值所代表的作用在iOS7之后（含iOS7）已失效，在iOS6中可渲染app图标为带高亮效果。所以这个值目前我们可以不用关心。</li>
+</ul>
+<p>让我们用代码展示下CFBundleAlternateIcons的value的结构：</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">@&quot;CFBundleAlternateIcons&quot; : @&#123;</div><div class="line">                               @&quot;newAppIcon&quot; : @&#123;</div><div class="line">                                                 @&quot;CFBundleIconFiles&quot; : @[</div><div class="line">                                                      					  @&quot;newAppIcon&quot;</div><div class="line">                                                    					 ],</div><div class="line">                                                 @&quot;UIPrerenderedIcon&quot; : NO</div><div class="line">                                				&#125;,</div><div class="line">                               @&quot;newAppIcon2&quot; : @&#123;</div><div class="line">                                                 @&quot;CFBundleIconFiles&quot; : @[</div><div class="line">                                                      					  @&quot;newAppIcon2&quot;</div><div class="line">                                                                         ],</div><div class="line">                                                 @&quot;UIPrerenderedIcon&quot; : NO</div><div class="line">                                				 &#125;</div><div class="line">							 &#125;</div></pre></td></tr></table></figure>
+<h3 id="实际配置文件-Info-plist"><a href="#实际配置文件-Info-plist" class="headerlink" title="实际配置文件(Info.plist)"></a>实际配置文件(Info.plist)</h3><p>对照着上述的配置文档，我们实际配置完的Info.plist是这样子的：</p>
+<p><img src="/image/ChangeYourAppIcons1/InfoPlist1.png" alt="Info.plist1"></p>
+<p>当然也要拖入对应的App图标：</p>
+<p><img src="/image/ChangeYourAppIcons1/InfoPlist2.png" alt="各种天气App图标"></p>
+<p>不过这里我们好像还少配置了App主图标，也就是正常情况下我们的图标。按照文档所说，我们需要在CFBundleIcons里面配置CFBundlePrimaryIcon这个主图标对应的内容，但是实际上，我们还是按照老方法，在Assets.xcassets中配置AppIcon，对应尺寸填上对应图片即可。为什么这样子就可以配置主图标呢？让我们来看看某知名电商的ipa（在AppStore上下载的包）内的Info.plist（位于Payload/XXXXXX/Info.plist）：</p>
+<p><img src="/image/ChangeYourAppIcons1/知名电商InfoPlist.png" alt="知名电商的Info.plist"></p>
+<p>当然你也可以在你自己App打出的包内进行查看，系统其实是会将Assets.xcassets中配置的AppIcon转化为Info.plist中的CFBundlePrimaryIcon。所以我们主图标的配置方式还是与原先一样。</p>
+<h3 id="其他注意事项："><a href="#其他注意事项：" class="headerlink" title="其他注意事项："></a>其他注意事项：</h3><ul>
+<li>文件扩展名，如@2x,@3x，要么统一不写，那么系统会自动寻找合适的尺寸。要写就需要把每张icon的扩展名写上，和上图的格式一样，在本系列文章的Demo中也有一个单独的Demo示例如何添加多尺寸icon。</li>
+<li>iPad版本如果需要有更换的图标，需要在CFBundleIcons〜ipad同样设置一次。</li>
+</ul>
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">7</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj25vxf3c00009bvs44plwct2" data-title="iOS动态更换App图标（一）：基础使用" data-url="http://yoursite.com/2017/05/01/ChangeYourAppIcons1/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+var duoshuoQuery = {short_name: siteName};
+(function() {
+  var ds = document.createElement('script');
+  ds.type = 'text/javascript';ds.async = true;
+  ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+  ds.charset = 'UTF-8';
+  (document.getElementsByTagName('head')[0] 
+  || document.getElementsByTagName('body')[0]).appendChild(ds);
+})();</script></div><ul class="navication"><li class="home"><a href="/"><i class="icon icon-home"></i></a></li><li><a href="/2017/05/01/ChangeYourAppIcons2/"><i class="icon icon-arror-left"></i></a></li><li><a href="/2017/03/12/DYLeftSlipManager_analysis/"><i class="icon icon-arror-right"></i></a></li></ul><div class="page-footer"><div class="top"><ul class="social"><li><a href="https://github.com/maybeisyi" title="Github" target="_blank"><i class="icon icon-github"></i></a></li><li><a href="http://weibo.com/5721363654/profile?rightmod=1&amp;wvr=6&amp;mod=personinfo&amp;is_all=1" title="Weibo" target="_blank"><i class="icon icon-weibo"></i></a></li><li><a href="mailto:daybyte@163.com" title="Email" target="_blank"><i class="icon icon-email"></i></a></li></ul></div><div class="bottom"><p class="copyright">© 2017 戴奕的个人博客<br><small>POWER BY <a href="https://hexo.io" target="_blank">HEXO</a></small></p></div></div></div><script>var wrap = document.getElementById('wrap');
+window.onload = function () {
+  wrap.className += ' done';
+}</script></body></html>
