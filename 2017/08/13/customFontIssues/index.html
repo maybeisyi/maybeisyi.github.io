@@ -16,7 +16,7 @@
 <h5 id="2-4-可否从字体入手，自己修改字体？"><a href="#2-4-可否从字体入手，自己修改字体？" class="headerlink" title="2.4 可否从字体入手，自己修改字体？"></a>2.4 可否从字体入手，自己修改字体？</h5><p>既然字体有点不太正常，那么我们只能使出大招：自己动手修改这个字体。据说有一款App：Glyphs对于制作/修改字体来说，很强大！然后让我们好好下载，静静等待吧。下载完毕打开这个【PT DIN Condensed Cyrillic.ttf】字体文件，没想到这个软件还收费，只能试用几天。试用就使用吧，但是，这个字体里的每个字符我都要一个一个去改？作为程序员，不能忍！</p>
 <p><strong>结论</strong>：不可行</p>
 <h3 id="3-最终的解决方案"><a href="#3-最终的解决方案" class="headerlink" title="3. 最终的解决方案"></a>3. 最终的解决方案</h3><p>最后还是得靠苹果爸爸，大家的好爸爸。苹果提供了一款字体修改工具：Apple Font Tool Suite。下面就让我们用该工具来解决这个棘手的问题。</p>
-<h5 id="3-1-下载该工具"><a href="#3-1-下载该工具" class="headerlink" title="3.1 下载该工具"></a>3.1 下载该工具</h5><p>进入<a href="https://developer.apple.com/fonts/，滚到最下方，可以看到【Apple" target="_blank" rel="external">https://developer.apple.com/fonts/，滚到最下方，可以看到【Apple</a> Font Tool Suite】，点击下方的下载，下载一个适合自己Xcode版本，下载完成后无脑安装。</p>
+<h5 id="3-1-下载该工具"><a href="#3-1-下载该工具" class="headerlink" title="3.1 下载该工具"></a>3.1 下载该工具</h5><p>进入<a href="https://developer.apple.com/fonts/" target="_blank" rel="external">这里</a>，滚到最下方，可以看到【Apple Font Tool Suite】，点击下方的下载，下载一个适合自己Xcode版本，下载完成后无脑安装。</p>
 <h5 id="3-2-获取字体的信息文件"><a href="#3-2-获取字体的信息文件" class="headerlink" title="3.2 获取字体的信息文件"></a>3.2 获取字体的信息文件</h5><p>打开终端，输入：<code>ftxdumperfuser -t hhea -A d PT\ DIN\ Condensed\ Cyrillic.ttf</code>，前面的【ftxdumperfuser -t hhea -A d 】为指令，后面的为你的字体文件路径。最后回车，你会看到同级文件夹下回多出一个【DINCondensedC.hhea.xml】文件：</p>
 <p><img src="/image/customFontIssues/3.png" alt="字体信息文件"></p>
 <h5 id="3-3-修改字体文件中的信息"><a href="#3-3-修改字体文件中的信息" class="headerlink" title="3.3 修改字体文件中的信息"></a>3.3 修改字体文件中的信息</h5><p>让我们打开这个字体文件，你会看到：</p>
@@ -28,19 +28,19 @@
 <li>lineGap：印刷线的间距</li>
 <li>…</li>
 </ul>
-<p>这里面的每一项信息，都可以从苹果的：<a href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html这篇文档中找到。文档中可以看到，一款字体也是一个大工程。" target="_blank" rel="external">https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html这篇文档中找到。文档中可以看到，一款字体也是一个大工程。</a></p>
+<p>这里面的每一项信息，都可以从苹果的：<a href="https://developer.apple.com/fonts/TrueType-Reference-Manual/RM06/Chap6hhea.html" target="_blank" rel="external">hheaTable文档</a>这篇文档中找到。文档中可以看到，一款字体也是一个大工程。</p>
 <p>今天我们要解决的，是【DINCondensedC】字体偏上的问题，因此，让我们来调节调节ascender这个属性，将它<strong>从700改为900</strong>，然后保存文件。</p>
 <h5 id="3-4-将修改完的文件注入原ttf文件"><a href="#3-4-将修改完的文件注入原ttf文件" class="headerlink" title="3.4 将修改完的文件注入原ttf文件"></a>3.4 将修改完的文件注入原ttf文件</h5><p>打开终端，输入：<code>ftxdumperfuser -t hhea -A f PT\ DIN\ Condensed\ Cyrillic.ttf</code>，注意这里 -A 后面的 d 已经换成了 f ，回车。</p>
 <h5 id="3-5-替换原工程中的字体文件"><a href="#3-5-替换原工程中的字体文件" class="headerlink" title="3.5 替换原工程中的字体文件"></a>3.5 替换原工程中的字体文件</h5><p>切回我们的工程，替换原字体文件，Run一下：</p>
 <p><img src="/image/customFontIssues/4.png" alt="修改后的字体"></p>
 <p><strong>问题已解决！</strong></p>
-<h3 id="4-Demo地址"><a href="#4-Demo地址" class="headerlink" title="4. Demo地址"></a>4. Demo地址</h3><p><a href="https://github.com/maybeisyi/BlogDemos/tree/master/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%97%E4%BD%93%E5%87%BA%E9%97%AE%E9%A2%98%E5%95%A6Demo" target="_blank" rel="external">https://github.com/maybeisyi/BlogDemos/tree/master/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%97%E4%BD%93%E5%87%BA%E9%97%AE%E9%A2%98%E5%95%A6Demo</a></p>
+<h3 id="4-Demo地址"><a href="#4-Demo地址" class="headerlink" title="4. Demo地址"></a>4. Demo地址</h3><p><a href="https://github.com/maybeisyi/BlogDemos/tree/master/%E8%87%AA%E5%AE%9A%E4%B9%89%E5%AD%97%E4%BD%93%E5%87%BA%E9%97%AE%E9%A2%98%E5%95%A6Demo" target="_blank" rel="external">点击这里直达仓库</a></p>
 <ul>
 <li><strong>CustomFontIssues</strong> 为字体有问题的工程</li>
 <li><strong>CustomFontIssuesResolve</strong> 为已解决字体问题的工程</li>
 </ul>
 <p>欢迎品尝~</p>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj6arsfgl000021vsdu4v4lvx" data-title="自定义字体出问题啦！" data-url="http://yoursite.com/2017/08/13/customFontIssues/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj6asd0qa000ci0vsz47wszfr" data-title="自定义字体出问题啦！" data-url="http://yoursite.com/2017/08/13/customFontIssues/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');

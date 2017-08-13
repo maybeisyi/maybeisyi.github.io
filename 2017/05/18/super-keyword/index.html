@@ -108,7 +108,7 @@
 </ol>
 <h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>所以，从真实的IR代码中，<strong><code>super</code>关键字其实是直接指明本类Son，再结合<code>_objc_msgSendSuper2</code>函数直接获取父类去查找方法的，而并非像clang重写的那样，指明本类，再通过runtime查找父类。</strong></p>
 <p>其实先指明本类，再通过runtime查找父类，也是没有问题的，这还可以避免一些运行时“更改父类”的情况。但是LLVM的做法应该是有他的道理的，可能是出于性能考虑？</p>
-</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj2wsm49d000av4vs92ntehk2" data-title="super关键字帮我们做了什么？" data-url="http://yoursite.com/2017/05/18/super-keyword/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
+</div><div class="article-meta" style="max-width:800px"><div class="tags"><i class="icon icon-tag"></i><ul class="tag-list"><li class="tag-list-item"><a class="tag-list-link" href="/tags/iOS/">iOS</a><span class="tag-list-count">9</span></li></ul></div></div><div class="article-comment" style="max-width:800px"><div class="ds-thread" id="ds-thread" data-thread-key="cj6asd0qd000fi0vs9tnmybvf" data-title="super关键字帮我们做了什么？" data-url="http://yoursite.com/2017/05/18/super-keyword/" site-name="daiyi"></div><script>var siteName = document.getElementById('ds-thread').getAttribute('site-name');
 var duoshuoQuery = {short_name: siteName};
 (function() {
   var ds = document.createElement('script');
